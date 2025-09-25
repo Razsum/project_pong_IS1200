@@ -1,6 +1,8 @@
 // pong_ui_static_8bpp.c — DTEK-V Pong UI (static, no controls), 8-bit framebuffer
 #include <stdint.h>
 #include <stdbool.h>
+#include "sprites.h"
+
 
 #define FB_BASE  0x08000000u
 #define WIDTH    320
@@ -40,7 +42,9 @@ static void clear_screen8(uint8_t c) {
   for (int i = 0; i < WIDTH * HEIGHT; ++i) fb[i] = c;
 }
 
-static inline void delay_cycles(volatile uint32_t n) { while (n--) __asm__ volatile(""); }
+void ball_position;
+
+static inline void delay_cycles(volatile uint32_t n) { while (n--) __asm__ volatile("");}; 
 
 int main(void) {
   // 1) Clear background
