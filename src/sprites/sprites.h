@@ -5,7 +5,7 @@
 
 typedef struct {
     int w, h;
-    const uint8_t *bitmap; // 1D array of palette indices
+    const uint8_t *bitmap; 
 } sprite_t;
 
 // Returns a pointer to a sprite by ID

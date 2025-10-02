@@ -1,5 +1,11 @@
 #include "sprites.h"
 
+static const uint32_t palette[256] = {
+    [0] = 0x302f2f,   // dark gray
+    [1] = 0xffdb27,   // yellow
+    [2] = 0xffffff,   // white
+};
+
 static const uint8_t sprite_ball_bitmap[8*8]= {
 {
 0, 0, 0, 0, 0, 0, 0, 0,
@@ -26,7 +32,3 @@ const sprite_t* get_sprite(int spriteID) {
         default: return 0;
     }
 }
-
-// 0x302f2f = 0
-// 0xff11dbe6 = 1
-// 0x302f2f = 2
