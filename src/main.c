@@ -13,6 +13,19 @@
 #define GPIO_IN_ADDR  0x040000E0u
 #define GPIO_IN       (*(volatile uint32_t*)GPIO_IN_ADDR)
 
+static const uint8_t digits[10][7] = {
+    {0x1F, 0x11, 0x11, 0x11, 0x1F}, // 0
+    {0x00, 0x00, 0x1F, 0x00, 0x00}, // 1
+    {0x1D, 0x15, 0x15, 0x15, 0x17}, // 2
+    {0x11, 0x15, 0x15, 0x15, 0x1F}, // 3
+    {0x07, 0x04, 0x04, 0x1F, 0x04}, // 4
+    {0x17, 0x15, 0x15, 0x15, 0x1D}, // 5
+    {0x1F, 0x15, 0x15, 0x15, 0x1D}, // 6
+    {0x01, 0x01, 0x01, 0x01, 0x1F}, // 7
+    {0x1F, 0x15, 0x15, 0x15, 0x1F}, // 8
+    {0x17, 0x15, 0x15, 0x15, 0x1F}  // 9
+};
+
 // Simple cosine approximation (good enough for small angles)
 static float simple_cos(float x) {
     // Taylor series: cos(x) ≈ 1 - x²/2 + x⁴/24
@@ -89,13 +102,40 @@ static void rect_fill8(int x,int y,int w,int h,uint8_t c){
   }
 }
 
-static void draw_all() {
+// Draw a single digit at position (x, y)
+static void draw_digit(int x, int y, int digit, uint8_t color) {
+    if (digit < 0 || digit > 9) return;
+    
+    for (int row = 0; row < 7; row++) {
+        uint8_t line = digits[digit][row];
+        for (int col = 0; col < 5; col++) {
+            if (line & (1 << col)) {
+                pset8(x + col, y + row, color);
+            }
+        }
+    }
+}
+
+// Draw a two-digit number (00-99)
+static void draw_score(int x, int y, int score, uint8_t color) {
+    int tens = (score / 10) % 10;
+    int ones = score % 10;
+    
+    draw_digit(x, y, tens, color);
+    draw_digit(x + 8, y, ones, color);  // 8 pixels apart (5 + gap)
+}
+
+static void draw_all(int p1_score, int p2_score) {
   // erase old paddle areas
   rect_fill8(prev_p1x, prev_p1y, pad_w, pad_h, COL_BG);
   rect_fill8(prev_p2x, prev_p2y, pad_w, pad_h, COL_BG);
 
   // erase old ball area
   rect_fill8(prev_bx, prev_by, ball_sz, ball_sz, COL_BG);
+
+  // erase score areas
+  draw_score(WIDTH/2 - 40, 10, 16, COL_BG);
+  draw_score(WIDTH/2 - 20, 10, 16, COL_BG);
 
   // redraw net slice
   for(int y=0;y<HEIGHT;y+=8) rect_fill8(WIDTH/2-1, y, 2, 4, COL_NET);
@@ -106,6 +146,10 @@ static void draw_all() {
 
   // redraw ball at new position
   rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
+
+  // redraw score
+  draw_score(WIDTH/2 - 40, 10, p1_score, COL_FG);
+  draw_score(WIDTH/2 - 20, 10, p2_score, COL_FG);
 }
 
 static uint32_t frame_counter = 0;
@@ -172,7 +216,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
       (*p2_score)++;
       bx = WIDTH/2 - ball_sz/2;
       by = HEIGHT/2 - ball_sz/2;
-      ball_dx = -ball_vel;
+      ball_dx = ball_vel;
       ball_dy = 0.0f;
       frame_counter++;
       initialize_ball();
@@ -182,7 +226,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
       (*p1_score)++;
       bx = WIDTH/2 - ball_sz/2;
       by = HEIGHT/2 - ball_sz/2;
-      ball_dx = ball_vel;
+      ball_dx = -ball_vel;
       ball_dy = 0.0f;
       frame_counter++;
       initialize_ball();
@@ -267,15 +311,15 @@ int main()
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
     update_player_position(d1y, d2y);
-    draw_all();
-
-    if (p1_score == 10) {
-      print("Player 1 wins!");
-    }
-    if (p2_score == 10) {
-      print("Player 2 wins!");
-    }
+    draw_all(p1_score, p2_score);
 
     wait(5);
+  }
+
+  if (p1_score == 10) {
+      print("Player 1 wins!");
+  }
+  if (p2_score == 10) {
+    print("Player 2 wins!");
   }
 }
