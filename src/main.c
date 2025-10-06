@@ -135,7 +135,7 @@ static void draw_all(int p1_score, int p2_score) {
 
   // erase score areas
   rect_fill8(WIDTH/2 - 40, 10, 16, COL_BG);
-  rect_fill8(WIDTH/2 - 20, 10, 16, COL_BG);
+  rect_fill8(WIDTH/2 + 20, 10, 16, COL_BG);
 
   // redraw net slice
   for(int y=0;y<HEIGHT;y+=8) rect_fill8(WIDTH/2-1, y, 2, 4, COL_NET);
@@ -149,7 +149,7 @@ static void draw_all(int p1_score, int p2_score) {
 
   // redraw score
   draw_score(WIDTH/2 - 40, 10, p1_score, COL_FG);
-  draw_score(WIDTH/2 - 20, 10, p2_score, COL_FG);
+  draw_score(WIDTH/2 + 20, 10, p2_score, COL_FG);
 }
 
 static uint32_t frame_counter = 0;
