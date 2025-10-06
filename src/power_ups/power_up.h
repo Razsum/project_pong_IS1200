@@ -22,7 +22,7 @@ typedef struct {
 
 PowerUp spawn_power_up(int power_type);
 PowerUp rand_power_up(void);
-PowerUp goalkeeper_power_up(void);
+PowerUp goalKeeper_power_up(void);
 PowerUp speedUp_power_up(void);
 PowerUp doubleBall_power_up(void);
 
