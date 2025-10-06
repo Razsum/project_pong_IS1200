@@ -126,7 +126,7 @@ static void initialize_ball() {
   }
 }
 
-static void update_ball_physics() {
+static void update_ball_physics(int *p1_score, int *p2_score) {
     prev_bx = bx;
     prev_by = by;
     bx += (int) ball_dx;
@@ -167,6 +167,26 @@ static void update_ball_physics() {
       if (by <= 0) by = 0;
       if (by + ball_sz >= HEIGHT) by = HEIGHT - ball_sz;
     }
+
+    if (bx <= 0) {
+      (*p2_score)++;
+      bx = WIDTH/2 - ball_sz/2;
+      by = HEIGHT/2 - ball_sz/2;
+      ball_dx = -ball_vel;
+      ball_dy = 0.0f;
+      frame_counter++;
+      initialize_ball();
+    }
+
+    if (bx >= WIDTH) {
+      (*p1_score)++;
+      bx = WIDTH/2 - ball_sz/2;
+      by = HEIGHT/2 - ball_sz/2;
+      ball_dx = ball_vel;
+      ball_dy = 0.0f;
+      frame_counter++;
+      initialize_ball();
+    }
 }
 
 static void update_player_position(int d1y, int d2y) {
@@ -205,6 +225,8 @@ void handle_interrupt(void) {}
 
 int main()
 {
+  int p1_score = 0, p2_score = 0;
+
   initializeSensor();
 
   clear_screen8(COL_BG);
@@ -221,7 +243,7 @@ int main()
 
   initialize_ball();
 
-  while (1)
+  while (p1_score < 10 && p2_score < 10)
   {
     getAccelerometer(&x, &y);
     y = y / SENSITIVITY;
@@ -243,9 +265,16 @@ int main()
     print("\n");
     
     // ---- UPDATE ----
-    update_ball_physics();
+    update_ball_physics(&p1_score, &p2_score);
     update_player_position(d1y, d2y);
     draw_all();
+
+    if (p1_score == 10) {
+      print("Player 1 wins!");
+    }
+    if (p2_score == 10) {
+      print("Player 2 wins!");
+    }
 
     wait(5);
   }
