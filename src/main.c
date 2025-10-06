@@ -134,8 +134,8 @@ static void draw_all(int p1_score, int p2_score) {
   rect_fill8(prev_bx, prev_by, ball_sz, ball_sz, COL_BG);
 
   // erase score areas
-  rect_fill8(WIDTH/2 - 40, 10, 16, COL_BG);
-  rect_fill8(WIDTH/2 + 20, 10, 16, COL_BG);
+  rect_fill8(WIDTH/2 - 40, 10, 16, 7, COL_BG);
+  rect_fill8(WIDTH/2 + 20, 10, 16, 7, COL_BG);
 
   // redraw net slice
   for(int y=0;y<HEIGHT;y+=8) rect_fill8(WIDTH/2-1, y, 2, 4, COL_NET);
