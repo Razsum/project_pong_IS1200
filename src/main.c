@@ -1,7 +1,6 @@
 #include "dtekv-lib.h"
 #include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
 #include "dtekv-i2c-lib/dtekv-i2c-lib.h"
-#include "power_ups/power_up.c"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -17,7 +16,7 @@
 
 static const uint8_t digits[10][7] = {
     {0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // 0
-    {0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
+    {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
     {0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F}, // 2
     {0x0E, 0x11, 0x01, 0x0E, 0x01, 0x11, 0x0E}, // 3
     {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}, // 4
@@ -112,7 +111,7 @@ static void draw_digit(int x, int y, int digit, uint8_t color) {
     for (int row = 0; row < 7; row++) {
         uint8_t line = digits[digit][row];
         for (int col = 0; col < 5; col++) {
-            if (line & (1 << col)) {
+            if (line & (1 << (4 - col))) {
                 pset8(x + col, y + row, color);
             }
         }
@@ -251,7 +250,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
     }
 }
 
-static void update_paddle_position(int d1y, int d2y) {
+static void update_player_position(int d1y, int d2y) {
   prev_p1x = p1x;
   prev_p1y = p1y;
   prev_p2x = p2x;
@@ -341,7 +340,7 @@ int main()
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
-    update_paddle_position(d1y, d2y);
+    update_player_position(d1y, d2y);
     draw_all(p1_score, p2_score);
 
     wait(5);
