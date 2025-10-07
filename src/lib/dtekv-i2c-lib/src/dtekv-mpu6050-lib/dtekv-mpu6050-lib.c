@@ -22,10 +22,12 @@ static inline void wait(unsigned char ms)
         asm volatile("nop");
 }
 
-void initializeSensor()
+void initializeSensor(int sensor)
 {
+    unsigned char address = MPU6050_ADDRESS + sensor; // sensor 0: 0x68, sensor 1: 0x69
+    
     // Device Reset
-    beginTransmission(MPU6050_ADDRESS);
+    beginTransmission(address);
     write(MPU6050_RA_PWR_MGMT_1);
     write(0 | DEVICE_RESET | TEMP_DIS);
     endTransmission(1);
@@ -33,7 +35,7 @@ void initializeSensor()
     wait(100);
 
     // Signal Path Reset
-    beginTransmission(MPU6050_ADDRESS);
+    beginTransmission(address);
     write(MPU6050_RA_SIGNAL_PATH_RESET);
     write(0 | GYRO_RESET | ACCEL_RESET | TEMP_RESET);
     endTransmission(1);
@@ -41,7 +43,7 @@ void initializeSensor()
     wait(100);
 
     // Wake up
-    beginTransmission(MPU6050_ADDRESS);
+    beginTransmission(address);
     write(MPU6050_RA_PWR_MGMT_1);
     write(0 | TEMP_DIS);
     endTransmission(1);
@@ -75,15 +77,16 @@ void getAccelerometerY(short *y)
     *y = buffer[0] << 8 | buffer[1];
 }
 
-void getAccelerometer(short *x, short *y)
+void getAccelerometer(int sensor, short *x, short *y)
 {
     unsigned char buffer[4];
+    unsigned char address = MPU6050_ADDRESS + sensor; // sensor 0: 0x68, sensor 1: 0x69
 
-    beginTransmission(MPU6050_ADDRESS);
+    beginTransmission(address);
     write(MPU6050_RA_ACCEL_XOUT_H);
     endTransmission(0);
 
-    requestFrom(MPU6050_ADDRESS, 4, buffer);
+    requestFrom(address, 4, buffer);
     endTransmission(1);
 
     *x = buffer[0] << 8 | buffer[1];
