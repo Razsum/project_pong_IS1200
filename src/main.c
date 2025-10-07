@@ -1,7 +1,6 @@
 #include "dtekv-lib.h"
 #include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
 #include "dtekv-i2c-lib/dtekv-i2c-lib.h"
-#include "power_ups/power_up.c"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -16,16 +15,16 @@
 #define GPIO_IN       (*(volatile uint32_t*)GPIO_IN_ADDR)
 
 static const uint8_t digits[10][7] = {
-    {0x1F, 0x11, 0x11, 0x11, 0x1F}, // 0
-    {0x00, 0x00, 0x1F, 0x00, 0x00}, // 1
-    {0x1D, 0x15, 0x15, 0x15, 0x17}, // 2
-    {0x11, 0x15, 0x15, 0x15, 0x1F}, // 3
-    {0x07, 0x04, 0x04, 0x1F, 0x04}, // 4
-    {0x17, 0x15, 0x15, 0x15, 0x1D}, // 5
-    {0x1F, 0x15, 0x15, 0x15, 0x1D}, // 6
-    {0x01, 0x01, 0x01, 0x01, 0x1F}, // 7
-    {0x1F, 0x15, 0x15, 0x15, 0x1F}, // 8
-    {0x17, 0x15, 0x15, 0x15, 0x1F}  // 9
+    {0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // 0
+    {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
+    {0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F}, // 2
+    {0x0E, 0x11, 0x01, 0x0E, 0x01, 0x11, 0x0E}, // 3
+    {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}, // 4
+    {0x1F, 0x10, 0x10, 0x1E, 0x01, 0x11, 0x0E}, // 5
+    {0x0E, 0x11, 0x10, 0x1E, 0x11, 0x11, 0x0E}, // 6
+    {0x1F, 0x01, 0x02, 0x04, 0x04, 0x04, 0x04}, // 7
+    {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}, // 8
+    {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x11, 0x0E}  // 9
 };
 
 // Simple cosine approximation (good enough for small angles)
@@ -62,9 +61,10 @@ int prev_p1x = 10, prev_p1y = HEIGHT/2 - pad_h/2;
 int prev_p2x = WIDTH-16, prev_p2y = HEIGHT/2 - pad_h/2;
 
 const int ball_vel = 2;
-const int ball_sz=5; int bx=WIDTH/2 - ball_sz/2, by=HEIGHT/2 - ball_sz/2;
-int prev_bx = WIDTH/2 - ball_sz/2, prev_by = HEIGHT/2 - ball_sz/2;
-float ball_dx = -ball_vel;
+const int ball_sz=5; 
+float bx = WIDTH/2 - ball_sz/2.0f, by = HEIGHT/2 - ball_sz/2.0f;
+float prev_bx = WIDTH/2 - ball_sz/2.0f, prev_by = HEIGHT/2 - ball_sz/2.0f;
+float ball_dx = ball_vel;
 float ball_dy = 0;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
@@ -111,7 +111,7 @@ static void draw_digit(int x, int y, int digit, uint8_t color) {
     for (int row = 0; row < 7; row++) {
         uint8_t line = digits[digit][row];
         for (int col = 0; col < 5; col++) {
-            if (line & (1 << col)) {
+            if (line & (1 << (4 - col))) {
                 pset8(x + col, y + row, color);
             }
         }
@@ -175,8 +175,8 @@ static void initialize_ball() {
 static void update_ball_physics(int *p1_score, int *p2_score) {
     prev_bx = bx;
     prev_by = by;
-    bx += (int) ball_dx;
-    by += (int) ball_dy;
+    bx += ball_dx;
+    by += ball_dy;
 
     // Ball hits left paddle
     if (bx <= p1x + pad_w && (by + ball_sz >= p1y && by <= p1y + pad_h) && ball_dx < 0) {
@@ -186,10 +186,18 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
       if (hit_position < -1.0f) hit_position = -1.0f;
       if (hit_position > 1.0f) hit_position = 1.0f;
 
+
+      // Calculate bounce angle based on hit position
       float max_bounce_angle = M_PI / 4.0f;
       float bounce_angle = hit_position * max_bounce_angle;
+      
+      // Set new velocity with angle
       ball_dx = ball_vel * simple_cos(bounce_angle);
       ball_dy = ball_vel * simple_sin(bounce_angle);
+      
+      // Clamp vertical speed
+      if (ball_dy > 3.0f) ball_dy = 3.0f;
+      if (ball_dy < -3.0f) ball_dy = -3.0f;
 
     }
 
@@ -201,10 +209,17 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
       if (hit_position < -1.0f) hit_position = -1.0f;
       if (hit_position > 1.0f) hit_position = 1.0f;
 
+      // Calculate bounce angle based on hit position
       float max_bounce_angle = M_PI / 4.0f;
       float bounce_angle = hit_position * max_bounce_angle;
+      
+      // Set new velocity with angle
       ball_dx = -ball_vel * simple_cos(bounce_angle);
       ball_dy = ball_vel * simple_sin(bounce_angle);
+      
+      // Clamp vertical speed
+      if (ball_dy > 3.0f) ball_dy = 3.0f;
+      if (ball_dy < -3.0f) ball_dy = -3.0f;
     }
 
     // Ball hits wall
@@ -235,7 +250,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
     }
 }
 
-static void update_paddle_position(int d1y, int d2y) {
+static void update_player_position(int d1y, int d2y) {
   prev_p1x = p1x;
   prev_p1y = p1y;
   prev_p2x = p2x;
@@ -325,7 +340,7 @@ int main()
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
-    update_paddle_position(d1y, d2y);
+    update_player_position(d1y, d2y);
     draw_all(p1_score, p2_score);
 
     wait(5);
