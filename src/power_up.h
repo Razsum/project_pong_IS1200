@@ -22,9 +22,5 @@ typedef struct {
 
 PowerUp spawn_power_up(int power_type);
 PowerUp rand_power_up(void);
-PowerUp power_up_position(PowerUp px, PowerUp py, PowerUp ptype);
-PowerUp goalKeeper_power_up(void);
-PowerUp speedUp_power_up(void);
-PowerUp doubleBall_power_up(void);
 
 #endif

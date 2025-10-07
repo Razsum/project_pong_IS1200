@@ -32,7 +32,7 @@ PowerUp rand_power_up(void)
  * Checks which player was the last to hit the ball with their paddle
  * Checks if ball == power_up_position
  */
-void power_up_position(PowerUp *px, PowerUp *py, PowerUp *ptype)
+void power_up_position(int *px, int *py, int *ptype)
 {
     // will only be active when power up has spawned
     // get p.x and p.y
