@@ -7,7 +7,7 @@
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
-#define FB_BASE       0x08000000u
+#define FB_BASE 0x08000000u
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -17,7 +17,7 @@
 
 enum
 {
-    COL_NET = 0x80,     // mid gray (center net)
+    COL_NET = 0x80, // mid gray (center net)
 };
 
 /**
@@ -62,12 +62,10 @@ float ballDX = 1, ballDY = 1;
 
 // Paddle object
 const int paddleWidth = 6, paddleHeight = 50;
-int paddleX, paddleY;
-int paddleDX = 1, paddleDY = 1;
-
-// Player paddle objects
 int p1x, p1y;
 int p2x, p2y;
+int p1PrevX = 10, p1PrevY = HEIGHT / 2 - paddleHeight / 2;
+int p2PrevX = WIDTH - 16, p2PrevY = HEIGHT / 2 - paddleHeight / 2;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
@@ -116,16 +114,31 @@ void paddle_spawn_p2()
     render_sprite(p2x, p2y, 3);
 }
 
-static void rect_fill8(int x,int y,int w,int h,uint8_t c){
-  if (w<=0||h<=0) return;
-  if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
-  if (x+w>WIDTH)  w=WIDTH-x;
-  if (y+h>HEIGHT) h=HEIGHT-y;
-  
-  for (int j = 0; j < h; ++j) {
-    volatile uint8_t* row = fb + (y+j)*WIDTH + x;
-    for(int i=0;i<w;++i) row[i]=c;
-  }
+static void rect_fill8(int x, int y, int w, int h, uint8_t c)
+{
+    if (w <= 0 || h <= 0)
+        return;
+    if (x < 0)
+    {
+        w += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        h += y;
+        y = 0;
+    }
+    if (x + w > WIDTH)
+        w = WIDTH - x;
+    if (y + h > HEIGHT)
+        h = HEIGHT - y;
+
+    for (int j = 0; j < h; ++j)
+    {
+        volatile uint8_t *row = fb + (y + j) * WIDTH + x;
+        for (int i = 0; i < w; ++i)
+            row[i] = c;
+    }
 }
 
 void draw_net()
@@ -230,6 +243,25 @@ static void update_ball_physics(int *p1Score, int *p2Score)
         ball_spawn();
     }
 }
+static void update_player_position(int d1y, int d2y)
+{
+  p1PrevX = p1x;
+  p1PrevY = p1y;
+  p2PrevX = p2x;
+  p2PrevY = p2y;
+
+  p1y += d1y;
+  p2y += d2y;
+  if (p1y < 0)
+    p1y = 0;
+  if (p1y + paddleHeight > HEIGHT)
+    p1y = HEIGHT - paddleHeight;
+
+  if (p2y < 0)
+    p2y = 0;
+  if (p2y + paddleHeight > HEIGHT)
+    p2y = HEIGHT - paddleHeight;
+}
 
 static void wait(unsigned short ms)
 {
@@ -239,13 +271,13 @@ static void wait(unsigned short ms)
 
 static void prints(short s)
 {
-  if (s < 0)
-  {
-    printc('-');
-    print_dec(-s);
-  }
-  else
-    print_dec(s);
+    if (s < 0)
+    {
+        printc('-');
+        print_dec(-s);
+    }
+    else
+        print_dec(s);
 }
 
 void handle_interrupt(void) {}
