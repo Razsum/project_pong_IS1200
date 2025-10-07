@@ -17,13 +17,8 @@ PowerUp spawn_power_up(int power_type)
     p.y = y_bounds.bottom + rand() % (y_bounds.top - y_bounds.bottom + 1);
     p.type = power_type;
 
-    // Pointers
-    PowerUp *pxptr = &p.x;
-    PowerUp *pyptr = &p.y;
-    PowerUp *ptypeptr = &p.type;
-
     p.sprite = get_sprite(power_type - 1);
-    power_up_position(pxptr, pyptr, ptypeptr);
+    power_up_position(&p.x, &p.y, &p.type);
     return p;
 }
 
@@ -37,7 +32,7 @@ PowerUp rand_power_up(void)
  * Checks which player was the last to hit the ball with their paddle
  * Checks if ball == power_up_position
  */
-PowerUp power_up_position(PowerUp *px, PowerUp *py, PowerUp *ptype)
+void power_up_position(PowerUp *px, PowerUp *py, PowerUp *ptype)
 {
     // will only be active when power up has spawned
     // get p.x and p.y
@@ -52,7 +47,7 @@ PowerUp power_up_position(PowerUp *px, PowerUp *py, PowerUp *ptype)
  * Increase the length of the paddle for the player that acquires it
  * Despawns after 'x' paddle hits
  */
-PowerUp bigPaddle_power_up(void)
+void bigPaddle_power_up(void)
 {
     // p(num) update_paddle_position
     // p(num) registers new bitmap as paddle
@@ -63,7 +58,7 @@ PowerUp bigPaddle_power_up(void)
  * Speeds up the velocity of the ball when the player that acquires it
  * hits it with their paddle, lasts for 'x' paddle hits
  */
-PowerUp speedUp_power_up(void)
+void speedUp_power_up(void)
 {
     // Only active for the player that accumulates it
     // if p(num)x register hits on paddle
@@ -77,7 +72,7 @@ PowerUp speedUp_power_up(void)
  * opponent of the player that acquired it, will despawn when it hits
  * opponent's paddle or ball
  */
-PowerUp doubleBall_power_up(void)
+void doubleBall_power_up(void)
 {
     // intialise_ball (second ball)
     // ball_vel = ball_vel - 1

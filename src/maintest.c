@@ -7,6 +7,7 @@
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
+#define FB_BASE       0x08000000u
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -16,7 +17,6 @@
 
 enum
 {
-    FB_BASE = 0x302f2f, // background (grey)
     COL_NET = 0x80,     // mid gray (center net)
 };
 
@@ -115,6 +115,19 @@ void paddle_spawn_p2()
     p2y = HEIGHT / 2;
     render_sprite(p2x, p2y, 3);
 }
+
+static void rect_fill8(int x,int y,int w,int h,uint8_t c){
+  if (w<=0||h<=0) return;
+  if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
+  if (x+w>WIDTH)  w=WIDTH-x;
+  if (y+h>HEIGHT) h=HEIGHT-y;
+  
+  for (int j = 0; j < h; ++j) {
+    volatile uint8_t* row = fb + (y+j)*WIDTH + x;
+    for(int i=0;i<w;++i) row[i]=c;
+  }
+}
+
 void draw_net()
 {
     for (int y = 0; y < HEIGHT; y += 8)
