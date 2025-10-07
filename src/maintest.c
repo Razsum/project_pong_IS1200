@@ -1,9 +1,9 @@
 #include "dtekv-lib.h"
 #include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
-#include "power_ups/power_up.c"
+#include "power_up.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "sprites\sprites.h"
+#include "sprites.h"
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
