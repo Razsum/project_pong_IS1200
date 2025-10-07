@@ -11,4 +11,4 @@ typedef struct {
 // Returns a pointer to a sprite by ID
 const sprite_t* get_sprite(int spriteID);
 
-#endif // SPRITES_H
+#endif

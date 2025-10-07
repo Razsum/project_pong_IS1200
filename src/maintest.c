@@ -3,17 +3,22 @@
 #include <stdbool.h>
 #include "sprites\sprites.h"
 
-#define FB_BASE 0x08000000u
+#define FB_BASE 0x302f2f
 #define WIDTH 320
 #define HEIGHT 240
 
-enum {
-COL_BG   = 0x00  // background (black)
+enum
+{
+    COL_BG = 0x00 // background (black)
 };
 
 // Ball state
 int ballX, ballY;
 int ballDX = 1, ballDY = 1;
+
+// Paddle state
+int paddleX, paddleY;
+int paddleDX = 1, paddleDY = 1;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
@@ -29,12 +34,26 @@ void ball_spawn()
 {
     ballX = WIDTH / 2 - 16;
     ballY = HEIGHT / 2 - 16;
-    render_sprite(ballX, ballY, 0);
+    render_sprite(ballX, ballY, 4);
+}
+
+void paddle_spawn_p1()
+{
+    paddleX = WIDTH - 40;
+    paddleX = HEIGHT / 2;
+    render_sprite(paddleX, paddleY, 3);
+}
+
+void paddle_spawn_p2()
+{
+    paddleX = WIDTH - 280;
+    paddleX = HEIGHT / 2;
+    render_sprite(paddleX, paddleY, 3);
 }
 
 void ball_movement()
 {
-    // erase old ball 
+    // erase old ball
     for (int j = 0; j < 32; j++)
         for (int i = 0; i < 32; i++)
         {
@@ -48,17 +67,21 @@ void ball_movement()
     ballX += ballDX;
     ballY += ballDY;
 
-    // bounece off edges
+    // bounce off edges
     if (ballX < 0 || ballX + 32 > WIDTH)
         ballDX = -ballDX;
     if (ballY < 0 || ballY + 32 > HEIGHT)
         ballDY = -ballDY;
 
     // redraw ball
-    render_sprite(ballX, ballY, 0);
+    render_sprite(ballX, ballY, 4);
 }
 
-static inline void delay_cycles(volatile uint32_t n) { while (n--) __asm__ volatile("");}; 
+static inline void delay_cycles(volatile uint32_t n)
+{
+    while (n--)
+        __asm__ volatile("");
+};
 
 int main(void)
 {
