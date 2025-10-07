@@ -24,14 +24,14 @@ void handle_interrupt(void) {}
 
 int main()
 {
-    initializeSensor();
+    initializeSensor(0);
 
     short x = 0;
     short y = 0;
 
     while (1)
     {
-        getAccelerometer(&x, &y);
+        getAccelerometer(0, &x, &y);
 
         print("X: ");
         prints(x / SENSITIVITY);

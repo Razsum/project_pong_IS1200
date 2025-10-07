@@ -1,5 +1,6 @@
 #include "dtekv-lib.h"
 #include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
+#include "dtekv-i2c-lib/dtekv-i2c-lib.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -62,7 +63,7 @@ int prev_p2x = WIDTH-16, prev_p2y = HEIGHT/2 - pad_h/2;
 const int ball_vel = 2;
 const int ball_sz=5; int bx=WIDTH/2 - ball_sz/2, by=HEIGHT/2 - ball_sz/2;
 int prev_bx = WIDTH/2 - ball_sz/2, prev_by = HEIGHT/2 - ball_sz/2;
-float ball_dx = ball_vel;
+float ball_dx = -ball_vel;
 float ball_dy = 0;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
@@ -270,8 +271,9 @@ void handle_interrupt(void) {}
 int main()
 {
   int p1_score = 0, p2_score = 0;
-
-  initializeSensor();
+  
+  initializeSensor(0);
+  initializeSensor(1);
 
   clear_screen8(COL_BG);
 
@@ -282,30 +284,42 @@ int main()
   rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
   rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
 
-  short x = 0;
-  short y = 0;
+  short x1 = 0;
+  short y1 = 0;
+  short x2 = 0;
+  short y2 = 0;
 
   initialize_ball();
 
   while (p1_score < 10 && p2_score < 10)
   {
-    getAccelerometer(&x, &y);
-    y = y / SENSITIVITY;
+    getAccelerometer(0, &x1, &y1);
+    getAccelerometer(1, &x2, &y2);
+    
+    
+    y1 = y1 / SENSITIVITY;
+    y2 = y2 / SENSITIVITY;
     int d1y = 0;
     int d2y = 0;
     
-    if (y < -10) {          // Tilted one way
+    // Player 1 controls
+    if (y1 < -10) {          // Tilted one way
         d1y = -1;            // Move up
-    } else if (y > 10) {    // Tilted other way  
+    } else if (y1 > 10) {    // Tilted other way  
         d1y = 1;             // Move down
     }
-
-    print("Y: ");
-    prints(y);
-    print(" d1y: ");
-    prints(d1y);
-    print(" p1y: ");
-    prints(p1y);
+    
+    // Player 2 controls
+    if (y2 < -10) {          // Tilted one way
+        d2y = -1;            // Move up
+    } else if (y2 > 10) {    // Tilted other way  
+        d2y = 1;             // Move down
+    }
+    
+    print(" Y1=");
+    prints(y1);
+    print(" Y2=");
+    prints(y2);
     print("\n");
     
     // ---- UPDATE ----
