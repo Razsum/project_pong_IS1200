@@ -224,11 +224,25 @@ static void wait(unsigned short ms)
         asm volatile("nop");
 }
 
+static void prints(short s)
+{
+  if (s < 0)
+  {
+    printc('-');
+    print_dec(-s);
+  }
+  else
+    print_dec(s);
+}
+
+void handle_interrupt(void) {}
+
 int main(void)
 {
     int p1Score = 0, p2Score = 0;
 
-    initializeSensor();
+    initializeSensor(0);
+    initializeSensor(1);
 
     clear_screen(FB_BASE);
 
@@ -238,33 +252,44 @@ int main(void)
 
     ball_spawn();
 
-    short x = 0;
-    short y = 0;
+    short x1, y1 = 0;
+    short x2, y2 = 0;
 
     rand_power_up();
 
     while (p1Score < 10 && p2Score < 10)
     {
-        getAccelerometer(&x, &y);
-        y = y / SENSITIVITY;
+        getAccelerometer(0, &x1, &y1);
+        getAccelerometer(1, &x2, &y2);
+        y1 = y1 / SENSITIVITY;
+        y2 = y2 / SENSITIVITY;
         int d1y = 0;
         int d2y = 0;
 
-        if (y < -10)
-        {             // Tilted one way
-            d1y = -1; // Move up
+        // Player 1 controls
+        if (y1 < -10)
+        {
+            d1y = -1;
         }
-        else if (y > 10)
-        {            // Tilted other way
-            d1y = 1; // Move down
+        else if (y1 > 10)
+        {
+            d1y = 1;
         }
 
-        print("Y: ");
-        prints(y);
-        print(" d1y: ");
-        prints(d1y);
-        print(" p1y: ");
-        prints(p1y);
+        // Player 2 controls
+        if (y2 < -10)
+        {
+            d2y = -1;
+        }
+        else if (y2 > 10)
+        {
+            d2y = 1;
+        }
+
+        print(" Y1=");
+        prints(y1);
+        print(" Y2=");
+        prints(y2);
         print("\n");
 
         // ---- UPDATE ----

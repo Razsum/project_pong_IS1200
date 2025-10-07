@@ -329,8 +329,6 @@ int main()
     draw_all(p1_score, p2_score);
 
     wait(5);
-
-    rand_power_up();
   }
 
   if (p1_score == 10) {
