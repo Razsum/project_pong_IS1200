@@ -4,8 +4,13 @@
 #define WIDTH  320
 #define HEIGHT 240
 
+enum
+{
+    FB_BASE = 0x302f2f, // background (grey)
+};
 
-extern volatile uint8_t *const fb;
+
+static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
 
 // Renders sprite onto screen by converting sprite-local coords to framebuffer coords
 void render_sprite(int x, int y, int spriteID) {
