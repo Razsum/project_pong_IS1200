@@ -17,7 +17,13 @@ PowerUp spawn_power_up(int power_type)
     p.y = y_bounds.bottom + rand() % (y_bounds.top - y_bounds.bottom + 1);
     p.type = power_type;
 
+    // Pointers
+    PowerUp *pxptr = &p.x;
+    PowerUp *pyptr = &p.y;
+    PowerUp *ptypeptr = &p.type;
+
     p.sprite = get_sprite(power_type - 1);
+    power_up_position(pxptr, pyptr, ptypeptr);
     return p;
 }
 
@@ -28,21 +34,43 @@ PowerUp rand_power_up(void)
 }
 
 /**
- * Sets up two "goal posts" for the player that acquires the power up,
- * lasts for 'x' clock cycles
+ * Checks which player was the last to hit the ball with their paddle
+ * Checks if ball == power_up_position
  */
-PowerUp goalKeeper_power_up(void)
+PowerUp power_up_position(PowerUp *px, PowerUp *py, PowerUp *ptype)
 {
+    // will only be active when power up has spawned
+    // get p.x and p.y
+    // Check which player was last to hit the paddle
+    // new function (hit_ball), updated by update_ball_physics
+    //
+    // Checks ball position, if bx == p.x && by == p.y (+ marginal)
+    // activates power_up by calling on the appropiate function
+}
 
+/**
+ * Increase the length of the paddle for the player that acquires it
+ * Despawns after 'x' paddle hits
+ */
+PowerUp bigPaddle_power_up(void)
+{
+    // p(num) update_paddle_position
+    // p(num) registers new bitmap as paddle
+    // Inactivates after 'x' paddle hits
 }
 
 /**
  * Speeds up the velocity of the ball when the player that acquires it
- * hits it with their paddle, lasts for 'x' clock cycles
+ * hits it with their paddle, lasts for 'x' paddle hits
  */
 PowerUp speedUp_power_up(void)
 {
-
+    // Only active for the player that accumulates it
+    // if p(num)x register hits on paddle
+    // ball_vel = ball_vel + 0.5
+    // if p(opp_num) register hit on paddle
+    // ball_vel = ball_vel -0.5
+    // Inactivates after 'x' paddle hits
 }
 /**
  * Spawns a second ball that will move at slower speed towards the
@@ -51,5 +79,10 @@ PowerUp speedUp_power_up(void)
  */
 PowerUp doubleBall_power_up(void)
 {
-
+    // intialise_ball (second ball)
+    // ball_vel = ball_vel - 1
+    // update_ball_physcics
+    // Send it towards p(opp_num) side
+    // Despawn (erase) ball once it hits p(opp_num) paddle
+    // Despawn (and score+1) if hit p(opp_num) side
 }

@@ -13,7 +13,7 @@ static const uint32_t palette[256] = {
 
 static uint8_t sprite_paddle_bitmap[PADDLE_WIDTH * PADDLE_HEIGHT];
 
-void init_paddle_bitmap(void) {
+void initialize_paddle_bitmap(void) {
     for (int y = 0; y < PADDLE_HEIGHT; y++) {
         for (int x = 0; x < PADDLE_WIDTH; x++) {
             sprite_paddle_bitmap[y * PADDLE_WIDTH + x] = 2;
