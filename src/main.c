@@ -1,5 +1,6 @@
 #include "dtekv-lib.h"
 #include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
+#include "power_ups/power_up.c"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -233,7 +234,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
     }
 }
 
-static void update_player_position(int d1y, int d2y) {
+static void update_paddle_position(int d1y, int d2y) {
   prev_p1x = p1x;
   prev_p1y = p1y;
   prev_p2x = p2x;
@@ -310,10 +311,12 @@ int main()
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
-    update_player_position(d1y, d2y);
+    update_paddle_position(d1y, d2y);
     draw_all(p1_score, p2_score);
 
     wait(5);
+
+    rand_power_up();
   }
 
   if (p1_score == 10) {
