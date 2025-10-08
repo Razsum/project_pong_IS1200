@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "power_up.h"
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
@@ -27,14 +28,17 @@ static const uint8_t digits[10][7] = {
     {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x11, 0x0E}  // 9
 };
 
-// Simple cosine approximation (good enough for small angles)
+/**
+ * Angel approximation to calculate ball trajectory
+ */
+// Cosine approximation
 static float simple_cos(float x)
 {
   // Taylor series: cos(x) ≈ 1 - x²/2 + x⁴/24
   float x2 = x * x;
   return 1.0f - x2 * 0.5f + x2 * x2 * 0.041666f;
 }
-
+// Sinus approximation
 static float simple_sin(float x)
 {
   // Taylor series: sin(x) ≈ x - x³/6 + x⁵/120
@@ -42,7 +46,7 @@ static float simple_sin(float x)
   return x * (1.0f - x2 * 0.166666f + x2 * x2 * 0.008333f);
 }
 
-// Simple pseudo-random number generator
+// Pseudo-random number generator
 static uint32_t rng_state = 12345;
 
 static void simple_srand(uint32_t seed)
@@ -57,13 +61,14 @@ static uint32_t simple_rand(void)
   return (rng_state / 65536) % 32768;
 }
 
-// objects
+// Paddle object
 const int pad_w = 6, pad_h = 50;
 int p1x = 10, p1y = HEIGHT / 2 - pad_h / 2;
 int p2x = WIDTH - 16, p2y = HEIGHT / 2 - pad_h / 2;
 int prev_p1x = 10, prev_p1y = HEIGHT / 2 - pad_h / 2;
 int prev_p2x = WIDTH - 16, prev_p2y = HEIGHT / 2 - pad_h / 2;
 
+// Ball object
 const int ball_vel = 2;
 const int ball_sz = 5;
 float bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
@@ -74,7 +79,7 @@ float ball_dy = 0;
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
 
-/* Palette indices (tweak if needed) */
+/* Palette indices */
 enum
 {
   COL_BG = 0x00,  // background (black)
@@ -83,6 +88,7 @@ enum
   COL_BALL = 0xC0 // ball
 };
 
+/* Wait function */
 static void wait(unsigned short ms)
 {
   for (unsigned int i = 0; i < 10000 * ms; i++)
@@ -123,7 +129,7 @@ static void rect_fill8(int x, int y, int w, int h, uint8_t c)
   }
 }
 
-// Draw a single digit at position (x, y)
+/* Draw a single digit at position (x, y) */
 static void draw_digit(int x, int y, int digit, uint8_t color)
 {
   if (digit < 0 || digit > 9)
@@ -142,47 +148,50 @@ static void draw_digit(int x, int y, int digit, uint8_t color)
   }
 }
 
-// Draw a two-digit number (00-99)
+/* Draw a two-digit number (00-99) */
 static void draw_score(int x, int y, int score, uint8_t color)
 {
   int tens = (score / 10) % 10;
   int ones = score % 10;
 
   draw_digit(x, y, tens, color);
-  draw_digit(x + 8, y, ones, color); // 8 pixels apart (5 + gap)
+  draw_digit(x + 8, y, ones, color);
 }
 
+/* Drawing Function - Erases and Redraws*/
 static void draw_all(int p1_score, int p2_score)
 {
-  // erase old paddle areas
+  // Erase paddles
   rect_fill8(prev_p1x, prev_p1y, pad_w, pad_h, COL_BG);
   rect_fill8(prev_p2x, prev_p2y, pad_w, pad_h, COL_BG);
 
-  // erase old ball area
+  // Erase ball
   rect_fill8(prev_bx, prev_by, ball_sz, ball_sz, COL_BG);
 
-  // erase score areas
+  // Erase score area
   rect_fill8(WIDTH / 2 - 40, 10, 16, 7, COL_BG);
   rect_fill8(WIDTH / 2 + 20, 10, 16, 7, COL_BG);
 
-  // redraw net slice
+  // Redraws net
   for (int y = 0; y < HEIGHT; y += 8)
     rect_fill8(WIDTH / 2 - 1, y, 2, 4, COL_NET);
 
-  // redraw paddles at new positions
+  // Redraws paddles at new position
   rect_fill8(p1x, p1y, pad_w, pad_h, COL_FG);
   rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
 
-  // redraw ball at new position
+  // Redraws ball at new position
   rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
 
-  // redraw score
+  // Redraws score
   draw_score(WIDTH / 2 - 40, 10, p1_score, COL_FG);
   draw_score(WIDTH / 2 + 20, 10, p2_score, COL_FG);
 }
 
+/* Comment */
 static uint32_t frame_counter = 0;
 
+/* Initializes Ball and Draws it at the correct positon */
 static void initialize_ball()
 {
   // Use frame counter as seed for randomness
@@ -202,6 +211,7 @@ static void initialize_ball()
   }
 }
 
+/* Gives ball physics and interactions */
 static void update_ball_physics(int *p1_score, int *p2_score)
 {
   prev_bx = bx;
@@ -212,6 +222,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
   // Ball hits left paddle
   if (bx <= p1x + pad_w && (by + ball_sz >= p1y && by <= p1y + pad_h) && ball_dx < 0)
   {
+    player_ball(1);
     bx = p1x + pad_w;
     float hit_position = (by - (p1y + pad_h / 2.0f)) / (pad_h / 2.0f);
 
@@ -238,6 +249,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
   // Ball hits right paddle
   if (bx + ball_sz >= p2x && (by + ball_sz >= p2y && by <= p2y + pad_h) && ball_dx > 0)
   {
+    player_ball(2);
     bx = p2x - ball_sz;
     float hit_position = (by - (p2y + pad_h / 2.0f)) / (pad_h / 2.0f);
 
@@ -270,7 +282,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
     if (by + ball_sz >= HEIGHT)
       by = HEIGHT - ball_sz;
   }
-
+  // Ball hits left-wall (p2 score)
   if (bx <= 0)
   {
     (*p2_score)++;
@@ -281,7 +293,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
     frame_counter++;
     initialize_ball();
   }
-
+  // Ball hits right-wall (p1 score)
   if (bx >= WIDTH)
   {
     (*p1_score)++;
@@ -293,7 +305,12 @@ static void update_ball_physics(int *p1_score, int *p2_score)
     initialize_ball();
   }
 }
+/* Keeps track of the last player to hit the ball */
+void player_ball(int n) {
+  return n;
+}
 
+/* Keeps track of hte current position of each paddle */
 static void update_player_position(int d1y, int d2y)
 {
   prev_p1x = p1x;
@@ -314,12 +331,14 @@ static void update_player_position(int d1y, int d2y)
     p2y = HEIGHT - pad_h;
 }
 
+/* Clear screen - Blank */
 static void clear_screen8(uint8_t c)
 {
   for (int i = 0; i < WIDTH * HEIGHT; ++i)
     fb[i] = c;
 }
 
+/* Prints out current score */
 static void prints(short s)
 {
   if (s < 0)
@@ -342,10 +361,11 @@ int main()
 
   clear_screen8(COL_BG);
 
-  // draw net once
+  // Draw net once
   for (int y = 0; y < HEIGHT; y += 8)
     rect_fill8(WIDTH / 2 - 1, y, 2, 4, COL_NET);
 
+  // Draws paddles and ball
   rect_fill8(p1x, p1y, pad_w, pad_h, COL_FG);
   rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
   rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
@@ -393,14 +413,15 @@ int main()
     prints(y2);
     print("\n");
 
-    // ---- UPDATE ----
+    // Updates position
     update_ball_physics(&p1_score, &p2_score);
     update_player_position(d1y, d2y);
     draw_all(p1_score, p2_score);
+    rand_power_up();
 
     wait(5);
   }
-
+  // Victory condition
   if (p1_score == 10)
   {
     print("Player 1 wins!");

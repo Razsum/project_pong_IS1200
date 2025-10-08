@@ -140,6 +140,11 @@ static void rect_fill8(int x, int y, int w, int h, uint8_t c)
             row[i] = c;
     }
 }
+//Updates the drawing continously to convey the act of movement
+static void draw_all(int p1Score, int p2Score) {
+    // render_sprite
+    
+}
 
 void draw_net()
 {

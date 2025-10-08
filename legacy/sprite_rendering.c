@@ -27,6 +27,6 @@ void render_sprite(int x, int y, int spriteID) {
         if (globalY < 0 || globalY >= HEIGHT) continue;
 
         // Writes to framebuffer
-        fb[globalY * WIDTH + globalX] = spriteToDraw->bitmap[i];
+        fb[globalY * WIDTH + globalX] = spriteToDraw->palette[bitmap[i]];
     }
 }
