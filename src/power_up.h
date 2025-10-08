@@ -20,7 +20,7 @@ typedef struct {
     const void* sprite;
 } PowerUp;
 
-PowerUp spawn_power_up(int power_type);
+PowerUp spawn_power_up(int power_type, int frame_counter);
 PowerUp rand_power_up(void);
 
 #endif

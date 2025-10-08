@@ -33,7 +33,6 @@ PowerUp spawn_power_up(int power_type, int frame_counter)
     p.y = y_bounds.bottom + simple_rand() % (y_bounds.top - y_bounds.bottom + 1);
     p.type = power_type;
 
-    p.sprite = get_sprite(power_type - 1);
     power_up_position(&p.x, &p.y, &p.type);
     draw_powerup(&p.x, &p.y, &p.type);
 
