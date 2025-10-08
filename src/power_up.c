@@ -39,10 +39,10 @@ PowerUp spawn_power_up(int power_type, int frame_counter)
     return p;
 }
 
-PowerUp rand_power_up(void)
+PowerUp rand_power_up(int frame_counter)
 {
     int power_type = (simple_rand() % 3) + 1;
-    return spawn_power_up(power_type, 1);
+    return spawn_power_up(power_type, frame_counter);
 }
 
 /**
