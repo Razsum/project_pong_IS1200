@@ -5,13 +5,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "power_up.h"
+#include "objects.h"
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
 
 #define FB_BASE 0x08000000u
-#define WIDTH 320
-#define HEIGHT 240
+
 #define GPIO_IN_ADDR 0x040000E0u
 #define GPIO_IN (*(volatile uint32_t *)GPIO_IN_ADDR)
 
@@ -60,24 +60,6 @@ static uint32_t simple_rand(void)
   rng_state = rng_state * 1103515245 + 12345;
   return (rng_state / 65536) % 32768;
 }
-
-// Paddle object
-const int pad_w = 6, pad_h = 50;
-int p1x = 10, p1y = HEIGHT / 2 - pad_h / 2;
-int p2x = WIDTH - 16, p2y = HEIGHT / 2 - pad_h / 2;
-int prev_p1x = 10, prev_p1y = HEIGHT / 2 - pad_h / 2;
-int prev_p2x = WIDTH - 16, prev_p2y = HEIGHT / 2 - pad_h / 2;
-
-// Ball object
-const int ball_vel = 2;
-const int ball_sz = 5;
-float bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
-float prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0f;
-float ball_dx = ball_vel;
-float ball_dy = 0;
-
-// Powerup object
-const int p_sz = 5;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
@@ -193,7 +175,7 @@ static void draw_all(int p1_score, int p2_score)
 }
 
 void draw_powerup(int *px, int *py, int *p_type) {
-    rect_fill8(px, py, p_sz, p_sz, COL_BALL);
+    rect_fill8(px, py, power_sz, power_sz, COL_BALL);
 }
 
 /* Comment */
@@ -425,7 +407,7 @@ int main()
     update_ball_physics(&p1_score, &p2_score);
     update_player_position(d1y, d2y);
     draw_all(p1_score, p2_score);
-    rand_power_up();
+    rand_power_up(frame_counter);
 
     wait(5);
   }

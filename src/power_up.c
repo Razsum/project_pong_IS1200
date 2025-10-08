@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include "power_up.h"
-
-#define WIDTH 320
-#define HEIGHT 240
+#include "objects.h"
 
 // Pseudo-random number generator
 static uint32_t rng_state = 12345;
@@ -49,29 +47,30 @@ PowerUp rand_power_up(int frame_counter)
  * Checks which player was the last to hit the ball with their paddle
  * Checks if ball == power_up_position
  */
-void power_up_position(int *px, int *py, int *p_type)
+void power_up_position(float *power_x, float *power_y, int *power_type)
 {
     while (1)
     {
         int curr_player = player_ball();
 
-        /*if (bx < px + p_sz &&
-            bx + ball_sz > px &&
-            by < py + p_sz &&
-            by + ball_sz > py)*/
-        // activates power_up by calling on the appropiate function
-        switch (*p_type)
+        if (bx < *power_x + power_sz &&
+            bx + ball_sz > *power_x &&
+            by < *power_y + power_sz &&
+            by + ball_sz > *power_y)
+            {
+        switch (*power_type)
         {
         case 1:
-            bigPaddle_power_up();
+            bigPaddle_power_up(curr_player);
             break;
         case 2:
-            speedUp_power_up();
+            speedUp_power_up(curr_player);
             break;
         case 3:
-            doubleBall_power_up();
+            doubleBall_power_up(curr_player);
             break;
         }
+    }
     }
 }
 
@@ -79,7 +78,7 @@ void power_up_position(int *px, int *py, int *p_type)
  * Increase the length of the paddle for the player that acquires it
  * Despawns after 'x' paddle hits
  */
-void bigPaddle_power_up(void)
+void bigPaddle_power_up(int curr_player)
 {
     // p(num) update_paddle_position
     // p(num) registers new bitmap as paddle
@@ -90,7 +89,7 @@ void bigPaddle_power_up(void)
  * Speeds up the velocity of the ball when the player that acquires it
  * hits it with their paddle, lasts for 'x' paddle hits
  */
-void speedUp_power_up(void)
+void speedUp_power_up(int curr_player)
 {
     // Only active for the player that accumulates it
     // if p(num)x register hits on paddle
@@ -104,7 +103,7 @@ void speedUp_power_up(void)
  * opponent of the player that acquired it, will despawn when it hits
  * opponent's paddle or ball
  */
-void doubleBall_power_up(void)
+void doubleBall_power_up(int curr_player)
 {
     // intialise_ball (second ball)
     // ball_vel = ball_vel - 1
