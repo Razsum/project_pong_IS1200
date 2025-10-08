@@ -4,15 +4,6 @@
 #define WIDTH 320
 #define HEIGHT 240
 
-const int p_sz = 5;
-
-static uint32_t frame_counter = 0;
-
-enum
-{
-  COL_BALL = 0xC0 // ball
-};
-
 // Pseudo-random number generator
 static uint32_t rng_state = 12345;
 
@@ -28,11 +19,8 @@ static uint32_t simple_rand(void)
     return (rng_state / 65536) % 32768;
 }
 
-const int ball_sz = 5;
-float bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
 
-
-PowerUp spawn_power_up(int power_type)
+PowerUp spawn_power_up(int power_type, int frame_counter)
 {
     YBoundary y_bounds = {.top = HEIGHT - 40, .bottom = HEIGHT - 200};
     XBoundary x_bounds = {.left = WIDTH - 240, .right = WIDTH - 80};
@@ -47,13 +35,15 @@ PowerUp spawn_power_up(int power_type)
 
     p.sprite = get_sprite(power_type - 1);
     power_up_position(&p.x, &p.y, &p.type);
+    draw_powerup(&p.x, &p.y, &p.type);
+
     return p;
 }
 
 PowerUp rand_power_up(void)
 {
     int power_type = (simple_rand() % 3) + 1;
-    return spawn_power_up(power_type);
+    return spawn_power_up(power_type, 1);
 }
 
 /**
@@ -62,16 +52,27 @@ PowerUp rand_power_up(void)
  */
 void power_up_position(int *px, int *py, int *p_type)
 {
-    while(1) {
-    // will only be active when power up has spawned
-    rect_fill8(px, py, p_sz, p_sz, COL_BALL);
-    int curr_player = player_ball();
+    while (1)
+    {
+        int curr_player = player_ball();
 
-    /*if (bx < px + p_sz &&
-        bx + ball_sz > px &&
-        by < py + p_sz &&
-        by + ball_sz > py)*/
-    // activates power_up by calling on the appropiate function
+        /*if (bx < px + p_sz &&
+            bx + ball_sz > px &&
+            by < py + p_sz &&
+            by + ball_sz > py)*/
+        // activates power_up by calling on the appropiate function
+        switch (*p_type)
+        {
+        case 1:
+            bigPaddle_power_up();
+            break;
+        case 2:
+            speedUp_power_up();
+            break;
+        case 3:
+            doubleBall_power_up();
+            break;
+        }
     }
 }
 

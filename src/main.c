@@ -76,6 +76,9 @@ float prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0
 float ball_dx = ball_vel;
 float ball_dy = 0;
 
+// Powerup object
+const int p_sz = 5;
+
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
 
@@ -186,6 +189,11 @@ static void draw_all(int p1_score, int p2_score)
   // Redraws score
   draw_score(WIDTH / 2 - 40, 10, p1_score, COL_FG);
   draw_score(WIDTH / 2 + 20, 10, p2_score, COL_FG);
+
+}
+
+void draw_powerup(int *px, int *py, int *p_type) {
+    rect_fill8(px, py, p_sz, p_sz, COL_BALL);
 }
 
 /* Comment */
