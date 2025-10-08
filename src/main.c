@@ -144,7 +144,7 @@ static void draw_score(int x, int y, int score, uint8_t color)
 }
 
 /* Drawing Function - Erases and Redraws*/
-static void draw_all(int p1_score, int p2_score)
+static void draw_all(int p1_score, int p2_score, PowerUp power_up)
 {
   // Erase paddles
   rect_fill8(prev_p1x, prev_p1y, pad_w, pad_h, COL_BG);
@@ -156,6 +156,8 @@ static void draw_all(int p1_score, int p2_score)
   // Erase score area
   rect_fill8(WIDTH / 2 - 40, 10, 16, 7, COL_BG);
   rect_fill8(WIDTH / 2 + 20, 10, 16, 7, COL_BG);
+
+  rect_fill8(&power_up.x, &power_up.y, power_sz, power_sz, COL_BG);
 
   // Redraws net
   for (int y = 0; y < HEIGHT; y += 8)
@@ -172,9 +174,11 @@ static void draw_all(int p1_score, int p2_score)
   draw_score(WIDTH / 2 - 40, 10, p1_score, COL_FG);
   draw_score(WIDTH / 2 + 20, 10, p2_score, COL_FG);
 
+  rect_fill8(&power_up.x, &power_up.y, power_sz, power_sz, COL_BALL);
+
 }
 
-void draw_powerup(int *px, int *py, int *p_type) {
+void draw_powerup(int *px, int *py, int p_type) {
     rect_fill8(*px, *py, power_sz, power_sz, COL_BALL);
 }
 
@@ -201,13 +205,8 @@ static void initialize_ball()
   }
 }
 
-/* Keeps track of the last player to hit the ball */
-int player_ball(int n) {
-  return n;
-}
-
 /* Gives ball physics and interactions */
-static void update_ball_physics(int *p1_score, int *p2_score)
+static void update_ball_physics(int *p1_score, int *p2_score, PowerUp power_up)
 {
   prev_bx = bx;
   prev_by = by;
@@ -217,7 +216,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
   // Ball hits left paddle
   if (bx <= p1x + pad_w && (by + ball_sz >= p1y && by <= p1y + pad_h) && ball_dx < 0)
   {
-    player_ball(1);
+    power_up_position(&power_up.x, &power_up.y, 2, 1);
     bx = p1x + pad_w;
     float hit_position = (by - (p1y + pad_h / 2.0f)) / (pad_h / 2.0f);
 
@@ -244,7 +243,7 @@ static void update_ball_physics(int *p1_score, int *p2_score)
   // Ball hits right paddle
   if (bx + ball_sz >= p2x && (by + ball_sz >= p2y && by <= p2y + pad_h) && ball_dx > 0)
   {
-    player_ball(2);
+    //player_ball(2);
     bx = p2x - ball_sz;
     float hit_position = (by - (p2y + pad_h / 2.0f)) / (pad_h / 2.0f);
 
@@ -405,10 +404,13 @@ int main()
     print("\n");
 
     // Updates position
-    update_ball_physics(&p1_score, &p2_score);
+    PowerUp power_up = rand_power_up();
+    prints(power_up.x);
+    prints(power_up.y);
+
+    draw_all(p1_score, p2_score, power_up);
+    update_ball_physics(&p1_score, &p2_score, power_up);
     update_player_position(d1y, d2y);
-    draw_all(p1_score, p2_score);
-    rand_power_up(frame_counter);
 
     wait(5);
   }

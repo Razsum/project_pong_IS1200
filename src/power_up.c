@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "power_up.h"
 #include "objects.h"
+#include "main.h"
 
 // Pseudo-random number generator
 static uint32_t rng_state = 12345;
@@ -18,7 +19,7 @@ static uint32_t simple_rand(void)
 }
 
 
-PowerUp spawn_power_up(int power_type, int frame_counter)
+PowerUp spawn_power_up(int power_type)
 {
     YBoundary y_bounds = {.top = HEIGHT - 40, .bottom = HEIGHT - 200};
     XBoundary x_bounds = {.left = WIDTH - 240, .right = WIDTH - 80};
@@ -37,22 +38,20 @@ PowerUp spawn_power_up(int power_type, int frame_counter)
     return p;
 }
 
-PowerUp rand_power_up(int frame_counter)
+PowerUp rand_power_up()
 {
     int power_type = (simple_rand() % 3) + 1;
-    return spawn_power_up(power_type, frame_counter);
+    return spawn_power_up(power_type);
 }
 
 /**
  * Checks which player was the last to hit the ball with their paddle
  * Checks if ball == power_up_position
  */
-void power_up_position(int *power_x, int *power_y, int *power_type)
+void power_up_position(int *power_x, int *power_y, int *power_type, int current_player)
 {
     while (1)
     {
-        int curr_player = player_ball();
-
         if (bx < *power_x + power_sz &&
             bx + ball_sz > *power_x &&
             by < *power_y + power_sz &&
@@ -61,13 +60,13 @@ void power_up_position(int *power_x, int *power_y, int *power_type)
         switch (*power_type)
         {
         case 1:
-            bigPaddle_power_up(curr_player);
+            bigPaddle_power_up(current_player);
             break;
         case 2:
-            speedUp_power_up(curr_player);
+            speedUp_power_up(current_player);
             break;
         case 3:
-            doubleBall_power_up(curr_player);
+            doubleBall_power_up(current_player);
             break;
         }
     }
