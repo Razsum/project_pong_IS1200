@@ -1,11 +1,11 @@
-#include "dtekv-lib.h"
-#include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
-#include "dtekv-i2c-lib/dtekv-i2c-lib.h"
+#include "objects.h"
+#include "power_up.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "power_up.h"
-#include "objects.h"
+#include "dtekv-lib.h"
+#include "dtekv-mpu6050-lib/dtekv-mpu6050-lib.h"
+#include "dtekv-i2c-lib/dtekv-i2c-lib.h"
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
@@ -175,11 +175,11 @@ static void draw_all(int p1_score, int p2_score)
 }
 
 void draw_powerup(int *px, int *py, int *p_type) {
-    rect_fill8(px, py, power_sz, power_sz, COL_BALL);
+    rect_fill8(*px, *py, power_sz, power_sz, COL_BALL);
 }
 
-/* Comment */
-static uint32_t frame_counter = 0;
+/* Frame Counter */
+uint32_t frame_counter = 0;
 
 /* Initializes Ball and Draws it at the correct positon */
 static void initialize_ball()
@@ -199,6 +199,11 @@ static void initialize_ball()
   {
     ball_dy = -ball_dy;
   }
+}
+
+/* Keeps track of the last player to hit the ball */
+int player_ball(int n) {
+  return n;
 }
 
 /* Gives ball physics and interactions */
@@ -294,10 +299,6 @@ static void update_ball_physics(int *p1_score, int *p2_score)
     frame_counter++;
     initialize_ball();
   }
-}
-/* Keeps track of the last player to hit the ball */
-void player_ball(int n) {
-  return n;
 }
 
 /* Keeps track of hte current position of each paddle */

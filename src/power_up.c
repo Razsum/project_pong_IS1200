@@ -47,7 +47,7 @@ PowerUp rand_power_up(int frame_counter)
  * Checks which player was the last to hit the ball with their paddle
  * Checks if ball == power_up_position
  */
-void power_up_position(float *power_x, float *power_y, int *power_type)
+void power_up_position(int *power_x, int *power_y, int *power_type)
 {
     while (1)
     {
