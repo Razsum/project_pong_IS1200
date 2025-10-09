@@ -32,7 +32,7 @@ PowerUp spawn_power_up(int power_type)
     p.y = y_bounds.bottom + simple_rand() % (y_bounds.top - y_bounds.bottom + 1);
     p.type = power_type;
 
-    power_up_position(&p.x, &p.y, &p.type);
+    power_up_position(&p.x, &p.y, 1, &p.type);
     draw_powerup(&p.x, &p.y, &p.type);
 
     return p;
