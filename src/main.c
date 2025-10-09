@@ -133,6 +133,9 @@ int main()
   initializeSensor(1);
   initialize_tmr();
 
+  int text_x = (WIDTH - 84) / 2;
+  int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
+
   int status = 0;
   draw_all(p1_score, p2_score);
   draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
@@ -144,8 +147,6 @@ int main()
 
     if (status)
     {
-      int text_x = (WIDTH - 84) / 2;
-      int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
 
       if (p1_score == MAX_SCORE) {
           print("Player 1 wins!");
