@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <objects.h>
+#include "objects.h"
+#include "simple-math.h"
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
@@ -27,32 +28,6 @@ static const uint8_t digits[10][7] = {
     {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}, // 8
     {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x11, 0x0E}  // 9
 };
-
-// Simple cosine approximation (good enough for small angles)
-static float simple_cos(float x) {
-    // Taylor series: cos(x) ≈ 1 - x²/2 + x⁴/24
-    float x2 = x * x;
-    return 1.0f - x2 * 0.5f + x2 * x2 * 0.041666f;
-}
-
-static float simple_sin(float x) {
-    // Taylor series: sin(x) ≈ x - x³/6 + x⁵/120
-    float x2 = x * x;
-    return x * (1.0f - x2 * 0.166666f + x2 * x2 * 0.008333f);
-}
-
-// Simple pseudo-random number generator
-static uint32_t rng_state = 12345;
-
-static void simple_srand(uint32_t seed) {
-    rng_state = seed;
-}
-
-static uint32_t simple_rand(void) {
-    // Linear congruential generator
-    rng_state = rng_state * 1103515245 + 12345;
-    return (rng_state / 65536) % 32768;
-}
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
@@ -140,8 +115,6 @@ static void draw_all(int p1_score, int p2_score) {
   draw_score(WIDTH/2 - 40, 10, p1_score, COL_FG);
   draw_score(WIDTH/2 + 20, 10, p2_score, COL_FG);
 }
-
-static uint32_t frame_counter = 0;
 
 static void initialize_ball() {
   // Use frame counter as seed for randomness
