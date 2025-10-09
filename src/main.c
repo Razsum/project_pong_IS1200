@@ -123,7 +123,7 @@ static int start() {
     }
   }
 
-  return 1
+  return 1;
 }
 
 
