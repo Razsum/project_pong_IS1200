@@ -58,18 +58,18 @@ int main()
     y2 = y2 / SENSITIVITY;
     
     // Player 1 controls
-    if (y1 < -20) {          // Tilted one way
+    if (y1 < -10) {          // Tilted one way
         d1y = -PADDLE_VEL;            // Move up
-    } else if (y1 > 20) {    // Tilted other way  
+    } else if (y1 > 10) {    // Tilted other way  
         d1y = PADDLE_VEL;             // Move down
     } else {
         d1y = 0;
     }
     
     // Player 2 controls
-    if (y2 < -20) {          // Tilted one way
+    if (y2 < -10) {          // Tilted one way
         d2y = -PADDLE_VEL;            // Move up
-    } else if (y2 > 20) {    // Tilted other way  
+    } else if (y2 > 10) {    // Tilted other way  
         d2y = PADDLE_VEL;             // Move down
     } else {
       d2y = 0;
