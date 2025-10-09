@@ -4,7 +4,7 @@ welcome_msg: .asciz "================================================\n===== RIS
 	
 .section .text
 .align 2
-.globl _start
+.globl _start, _isr_handler, enable_interrupt
 	
 _isr_handler:
 	j _isr_routine	   /* ISR service routine here */
@@ -113,11 +113,13 @@ restore:
 	mret
 
 	/* This is where the application starts */
-_start: 
-	// Set the stack point to somewhere free in the main memory
+_start:
+    // Set the stack point to somewhere free in the main memory
 	csrw mie, x0
 	la sp, _stack_end
 	la gp, __global_pointer
+	
+	
 	la a0, welcome_msg
 	li a7,4
 	ecall
@@ -125,3 +127,11 @@ _start:
 	jal main
 	
 loop:	j loop
+
+enable_interrupt:
+        li   t0, (1 << 16)
+        csrs mie, t0
+
+	li t0, 0x8
+	csrs mstatus, t0
+	ret

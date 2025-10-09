@@ -8,10 +8,41 @@
 #include "simple-math.h"
 #include "graphics.h"
 
+#define TIMER_BASE   0x04000020u
+#define TMR_STATUS   (*(volatile uint32_t*)(TIMER_BASE + 0x00)) // bit0=TO, bit1=RUN
+#define TMR_CONTROL  (*(volatile uint32_t*)(TIMER_BASE + 0x04)) // ITO, CONT, START, STOP
+#define TMR_PERIODL  (*(volatile uint32_t*)(TIMER_BASE + 0x08)) // low 16 bits
+#define TMR_PERIODH  (*(volatile uint32_t*)(TIMER_BASE + 0x0C)) // high 16 
+
+
+// control bits per doc
+#define CTRL_ITO     (1u << 0)  // enable IRQ (not needed for polling)
+#define CTRL_CONT    (1u << 1)  // continuous mode
+#define CTRL_START   (1u << 2)  // write-1 event
+#define CTRL_STOP    (1u << 3)  // write-1 event
+
+// status bits
+#define STAT_TO      (1u << 0)  // timeout flag
+#define STAT_RUN     (1u << 1)  // running (read-only)
+
 #define SENSITIVITY 180
 #define MAX_SCORE 10
 #define PADDLE_VEL 1
 #define BALL_VEL 2
+
+int p1_score = 0, p2_score = 0;
+
+void initialize_tmr(void)
+{
+    TMR_PERIODL = 0xC6C0;
+    TMR_PERIODH = 0x002D;
+    
+    TMR_STATUS = STAT_TO;
+    
+    TMR_CONTROL = CTRL_CONT | CTRL_START | CTRL_ITO;
+    
+    enable_interrupt();
+}
 
 static void wait(unsigned short ms)
 {
@@ -30,14 +61,20 @@ static void prints(short s)
     print_dec(s);
 }
 
-void handle_interrupt(void) {}
+void handle_interrupt(unsigned cause) 
+{
+	TMR_STATUS = STAT_TO;
+	update_ball_physics(&p1_score, &p2_score);
+  update_player_position();
+  draw_all(p1_score, p2_score);
+}
+
 
 int main()
-{
-  int p1_score = 0, p2_score = 0;
-  
+{ 
   initializeSensor(0);
   initializeSensor(1);
+  initialize_tmr();
 
   clear_screen8(COL_BG);
 
@@ -74,13 +111,6 @@ int main()
     } else {
       d2y = 0;
     }
-    
-    // ---- UPDATE ----
-    update_ball_physics(&p1_score, &p2_score);
-    update_player_position();
-    draw_all(p1_score, p2_score);
-
-    wait(5);
   }
 
   if (p1_score == MAX_SCORE) {
