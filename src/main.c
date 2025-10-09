@@ -34,8 +34,8 @@ int p1_score = 0, p2_score = 0;
 
 void initialize_tmr(void)
 {
-    TMR_PERIODL = 0x93E0;
-    TMR_PERIODH = 0x0004;
+    TMR_PERIODL = 0x4F90;
+    TMR_PERIODH = 0x0002;
     
     TMR_STATUS = STAT_TO;
     
