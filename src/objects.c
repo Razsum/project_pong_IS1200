@@ -11,7 +11,7 @@ int ball_vel = 2;
 const int ball_sz = 5;
 float bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
 float prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0f;
-float ball_dx = ball_vel;
+float ball_dx = 2;
 float ball_dy = 0;
 
 void initialize_ball(int vel) {
