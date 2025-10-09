@@ -134,6 +134,8 @@ int main()
   initialize_tmr();
 
   int status = 0;
+  draw_all(p1_score, p2_score);
+  draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
   
   while (1) {
     if (start_game) {
