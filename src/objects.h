@@ -23,9 +23,11 @@ extern float ball_dx, ball_dy;
 
 // Ball functions
 extern void initialize_ball(int vel);
+extern void reset_ball_position();
 extern void update_ball_physics(int *p1_score, int *p2_score);
 
 // Paddle functions
+extern void reset_player_position();
 extern void update_player_position();
 
 #endif

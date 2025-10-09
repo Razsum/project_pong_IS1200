@@ -25,12 +25,15 @@
 #define STAT_TO      (1u << 0)  // timeout flag
 #define STAT_RUN     (1u << 1)  // running (read-only)
 
+#define BTN_ADDR ((volatile uint32_t*)0x040000d0u)
+
 #define SENSITIVITY 180
 #define MAX_SCORE 10
 #define PADDLE_VEL 1
 #define BALL_VEL 2
 
 int p1_score = 0, p2_score = 0;
+bool start_game = false;
 
 void initialize_tmr(void)
 {
@@ -44,12 +47,6 @@ void initialize_tmr(void)
     enable_interrupt();
 }
 
-static void wait(unsigned short ms)
-{
-  for (unsigned int i = 0; i < 10000 * ms; i++)
-    asm volatile("nop");
-}
-
 static void prints(short s)
 {
   if (s < 0)
@@ -61,23 +58,34 @@ static void prints(short s)
     print_dec(s);
 }
 
+int get_btn(void) {
+    return (int)(*BTN_ADDR & 0x1u);   // LSB = button state
+}
+
 void handle_interrupt(unsigned cause) 
 {
 	TMR_STATUS = STAT_TO;
-  if (p1_score < MAX_SCORE && p2_score < MAX_SCORE) {
+
+  if (get_btn() && !start_game) {
+    bool start_game = true;
+  } else if (get_btn() && start_game) {
+    p1_score = 0, p2_score = 0;
+    bool start_game = false;
+  }
+
+  if (p1_score < MAX_SCORE && p2_score < MAX_SCORE && start_game) {
     update_ball_physics(&p1_score, &p2_score);
     update_player_position();
+    draw_all(p1_score, p2_score);
+  } else {
+    start_game = false;
+    reset_player_position();
+    reset_ball_position();
     draw_all(p1_score, p2_score);
   }
 }
 
-
-int main()
-{ 
-  initializeSensor(0);
-  initializeSensor(1);
-  initialize_tmr();
-
+static int start() {
   clear_screen8(COL_BG);
 
   short x1 = 0;
@@ -87,7 +95,7 @@ int main()
 
   initialize_ball(BALL_VEL);
 
-  while (p1_score < MAX_SCORE && p2_score < MAX_SCORE)
+  while (p1_score < MAX_SCORE && p2_score < MAX_SCORE && start_game)
   {
     getAccelerometer(0, &x1, &y1);
     getAccelerometer(1, &x2, &y2);
@@ -115,15 +123,37 @@ int main()
     }
   }
 
-  int text_x = (WIDTH - 84) / 2;
-  int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
+  return 1
+}
 
-  if (p1_score == MAX_SCORE) {
-      print("Player 1 wins!");
-      draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
-  }
-  if (p2_score == MAX_SCORE) {
-    print("Player 2 wins!");
-    draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
+
+int main()
+{ 
+  initializeSensor(0);
+  initializeSensor(1);
+  initialize_tmr();
+
+  int status = 0;
+  
+  while (1) {
+    if (start_game) {
+      status = start();
+    }
+
+    if (status)
+    {
+      int text_x = (WIDTH - 84) / 2;
+      int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
+
+      if (p1_score == MAX_SCORE) {
+          print("Player 1 wins!");
+          draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
+      }
+      if (p2_score == MAX_SCORE) {
+        print("Player 2 wins!");
+        draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
+      }
+    }
+    
   }
 }

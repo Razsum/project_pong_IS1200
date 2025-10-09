@@ -32,6 +32,21 @@ void initialize_ball(int vel) {
   }
 }
 
+void reset_ball_position() {
+    bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
+    prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0f;
+    ball_dx = 2;
+    ball_dy = 0;
+}
+
+void reset_player_position() {
+    p1x = 10, p1y = HEIGHT / 2 - pad_h / 2;
+    p2x = WIDTH - 16, p2y = HEIGHT / 2 - pad_h / 2;
+    prev_p1x = 10, prev_p1y = HEIGHT / 2 - pad_h / 2;
+    prev_p2x = WIDTH - 16, prev_p2y = HEIGHT / 2 - pad_h / 2;
+    d1y = 0, d2y = 0;
+}
+
 void update_ball_physics(int *p1_score, int *p2_score) {
     prev_bx = bx;
     prev_by = by;
