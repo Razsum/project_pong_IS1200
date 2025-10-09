@@ -9,21 +9,18 @@
 #include "graphics.h"
 
 #define TIMER_BASE   0x04000020u
-#define TMR_STATUS   (*(volatile uint32_t*)(TIMER_BASE + 0x00)) // bit0=TO, bit1=RUN
-#define TMR_CONTROL  (*(volatile uint32_t*)(TIMER_BASE + 0x04)) // ITO, CONT, START, STOP
-#define TMR_PERIODL  (*(volatile uint32_t*)(TIMER_BASE + 0x08)) // low 16 bits
-#define TMR_PERIODH  (*(volatile uint32_t*)(TIMER_BASE + 0x0C)) // high 16 
+#define TMR_STATUS   (*(volatile uint32_t*)(TIMER_BASE + 0x00))
+#define TMR_CONTROL  (*(volatile uint32_t*)(TIMER_BASE + 0x04))
+#define TMR_PERIODL  (*(volatile uint32_t*)(TIMER_BASE + 0x08))
+#define TMR_PERIODH  (*(volatile uint32_t*)(TIMER_BASE + 0x0C))
 
+#define CTRL_ITO     (1u << 0)
+#define CTRL_CONT    (1u << 1)
+#define CTRL_START   (1u << 2)
+#define CTRL_STOP    (1u << 3)
 
-// control bits per doc
-#define CTRL_ITO     (1u << 0)  // enable IRQ (not needed for polling)
-#define CTRL_CONT    (1u << 1)  // continuous mode
-#define CTRL_START   (1u << 2)  // write-1 event
-#define CTRL_STOP    (1u << 3)  // write-1 event
-
-// status bits
-#define STAT_TO      (1u << 0)  // timeout flag
-#define STAT_RUN     (1u << 1)  // running (read-only)
+#define STAT_TO      (1u << 0)
+#define STAT_RUN     (1u << 1)
 
 #define BTN_ADDR ((volatile uint32_t*)0x040000d0u)
 
@@ -32,143 +29,148 @@
 #define PADDLE_VEL 1
 #define BALL_VEL 2
 
+typedef enum {
+    STATE_MENU,
+    STATE_PLAYING,
+    STATE_GAME_OVER
+} GameState;
+
 int p1_score = 0, p2_score = 0;
-bool start_game = false;
+volatile GameState game_state = STATE_MENU;
+volatile bool button_pressed = false;
 
 void initialize_tmr(void)
 {
     TMR_PERIODL = 0x4F90;
     TMR_PERIODH = 0x0002;
-    
     TMR_STATUS = STAT_TO;
-    
     TMR_CONTROL = CTRL_CONT | CTRL_START | CTRL_ITO;
-    
     enable_interrupt();
 }
 
-static void prints(short s)
-{
-  if (s < 0)
-  {
-    printc('-');
-    print_dec(-s);
-  }
-  else
-    print_dec(s);
-}
-
 int get_btn(void) {
-    return (int)(*BTN_ADDR & 0x1u);   // LSB = button state
+    return (int)(*BTN_ADDR & 0x1u);
 }
 
 void handle_interrupt(unsigned cause) 
 {
-	TMR_STATUS = STAT_TO;
+    TMR_STATUS = STAT_TO;
 
-  if (get_btn() && !start_game) {
-    start_game = true;
-  } else if (get_btn() && start_game) {
-    p1_score = 0, p2_score = 0;
-    start_game = false;
-  }
-
-  if (p1_score < MAX_SCORE && p2_score < MAX_SCORE && start_game) {
-    update_ball_physics(&p1_score, &p2_score);
-    update_player_position();
-    draw_all(p1_score, p2_score);
-  } else {
-    reset_player_position();
-    reset_ball_position();
-    draw_all(p1_score, p2_score);
-  }
-}
-
-static void start() {
-  //clear_screen8(COL_BG);
-  
-  short x1 = 0;
-  short y1 = 0;
-  short x2 = 0;
-  short y2 = 0;
-
-  initialize_ball(BALL_VEL);
-
-  while (p1_score < MAX_SCORE && p2_score < MAX_SCORE && start_game)
-  {
-    getAccelerometer(0, &x1, &y1);
-    getAccelerometer(1, &x2, &y2);
-    
-    
-    y1 = y1 / SENSITIVITY;
-    y2 = y2 / SENSITIVITY;
-    
-    // Player 1 controls
-    if (y1 < -10) {          // Tilted one way
-        d1y = -PADDLE_VEL;            // Move up
-    } else if (y1 > 10) {    // Tilted other way  
-        d1y = PADDLE_VEL;             // Move down
-    } else {
-        d1y = 0;
+    // Detect button press
+    if (get_btn()) {
+        button_pressed = true;
     }
-    
-    // Player 2 controls
-    if (y2 < -10) {          // Tilted one way
-        d2y = -PADDLE_VEL;            // Move up
-    } else if (y2 > 10) {    // Tilted other way  
-        d2y = PADDLE_VEL;             // Move down
-    } else {
-      d2y = 0;
+
+    // Update game physics only when playing
+    if (game_state == STATE_PLAYING) {
+        if (p1_score < MAX_SCORE && p2_score < MAX_SCORE) {
+            update_ball_physics(&p1_score, &p2_score);
+            update_player_position();
+            draw_all(p1_score, p2_score);
+            
+            // Check for game over
+            if (p1_score >= MAX_SCORE || p2_score >= MAX_SCORE) {
+                game_state = STATE_GAME_OVER;
+                reset_player_position();
+                reset_ball_position();
+            }
+        }
     }
-  }
-
-  start_game = false;
 }
-
 
 int main()
 { 
-  initializeSensor(0);
-  initializeSensor(1);
-  initialize_tmr();
+    initializeSensor(0);
+    initializeSensor(1);
+    initialize_tmr();
 
-  clear_screen8(COL_BG);
+    clear_screen8(COL_BG);
+    draw_all(p1_score, p2_score);
 
-  int text_x = (WIDTH - 84) / 2;
-  int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
-
-  int status = 0;
-  draw_all(p1_score, p2_score);
-
-  bool remove_start_text = false;
-  
-  while (1) {
-    if (!start_game && !remove_start_text) {
-      draw_text(text_x - 10, text_y + 20, "Press KEY1 to start", COL_GOLD);
-    }
-
-    if(start_game && !remove_start_text) {
-      draw_text(text_x, text_y, "Press KEY1 to start", COL_BG);
-      remove_start_text = true;
-    }
-
-    if(start_game && remove_start_text) {
-      start();
-      clear_screen8(COL_BG);
-    }
-
-    if (!start_game)
-    {
-
-      if (p1_score == MAX_SCORE) {
-          draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
-          remove_start_text = false;
-      }
-      if (p2_score == MAX_SCORE) {
-        draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
-        remove_start_text = false;
-      }
-    }
+    int text_x = (WIDTH - 84) / 2;
+    int text_y = HEIGHT / 2 - 3;
     
-  }
+    short x1 = 0, y1 = 0;
+    short x2 = 0, y2 = 0;
+
+    while (1) {
+        switch (game_state) {
+            case STATE_MENU:
+                // Draw start message
+                draw_text(text_x - 10, text_y + 20, "Press KEY1 to start", COL_GOLD);
+                
+                // Wait for button press
+                if (button_pressed) {
+                    button_pressed = false;
+                    
+                    // Clear text and start game
+                    rect_fill8(text_x - 10, text_y + 20, 19 * 6, 7, COL_BG);
+                    p1_score = 0;
+                    p2_score = 0;
+                    reset_player_position();
+                    reset_ball_position();
+                    initialize_ball(BALL_VEL);
+                    draw_all(p1_score, p2_score);
+                    
+                    game_state = STATE_PLAYING;
+                }
+                break;
+
+            case STATE_PLAYING:
+                // Read accelerometer input
+                getAccelerometer(0, &x1, &y1);
+                getAccelerometer(1, &x2, &y2);
+                
+                y1 = y1 / SENSITIVITY;
+                y2 = y2 / SENSITIVITY;
+                
+                // Player 1 controls
+                if (y1 < -10) {
+                    d1y = -PADDLE_VEL;
+                } else if (y1 > 10) {
+                    d1y = PADDLE_VEL;
+                } else {
+                    d1y = 0;
+                }
+                
+                // Player 2 controls
+                if (y2 < -10) {
+                    d2y = -PADDLE_VEL;
+                } else if (y2 > 10) {
+                    d2y = PADDLE_VEL;
+                } else {
+                    d2y = 0;
+                }
+
+                // Check for button press to quit
+                if (button_pressed) {
+                    button_pressed = false;
+                    game_state = STATE_GAME_OVER;
+                    reset_player_position();
+                    reset_ball_position();
+                }
+                break;
+
+            case STATE_GAME_OVER:
+                // Display winner
+                if (p1_score >= MAX_SCORE) {
+                    draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
+                } else if (p2_score >= MAX_SCORE) {
+                    draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
+                }
+                
+                // Wait for button to return to menu
+                if (button_pressed) {
+                    button_pressed = false;
+                    
+                    // Clear winner text
+                    rect_fill8(text_x, text_y, 13 * 6, 7, COL_BG);
+                    clear_screen8(COL_BG);
+                    draw_all(p1_score, p2_score);
+                    
+                    game_state = STATE_MENU;
+                }
+                break;
+        }
+    }
 }
