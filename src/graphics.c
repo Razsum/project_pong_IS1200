@@ -42,10 +42,10 @@ static const uint8_t letters[26][7] = {
     {0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F}  // Z
 };
 
-/* 8-bit framebuffer pointer (1 byte per pixel) */
+// 8-bit framebuffer pointer (1 byte per pixel)
 volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
 
-/* Pixels & rects */
+// Pixels & rects
 inline void pset8(int x, int y, uint8_t c)
 {
   if ((unsigned)x < WIDTH && (unsigned)y < HEIGHT)
@@ -84,7 +84,7 @@ void draw_score(int x, int y, int score, uint8_t color) {
     int ones = score % 10;
     
     draw_digit(x, y, tens, color);
-    draw_digit(x + 8, y, ones, color);  // 8 pixels apart (5 + gap)
+    draw_digit(x + 8, y, ones, color);
 }
 
 // Draw a single character (letter, digit, or space)
@@ -107,7 +107,6 @@ void draw_char(int x, int y, char c, uint8_t color) {
         // Digit
         draw_digit(x, y, c - '0', color);
     }
-    // Space or other characters: draw nothing
 }
 
 // Draw a string of text
