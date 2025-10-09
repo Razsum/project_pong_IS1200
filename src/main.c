@@ -86,7 +86,7 @@ void handle_interrupt(unsigned cause)
 }
 
 static void start() {
-  clear_screen8(COL_BG);
+  //clear_screen8(COL_BG);
   
   short x1 = 0;
   short y1 = 0;
@@ -143,8 +143,15 @@ int main()
   int status = 0;
   draw_all(p1_score, p2_score);
   draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
+
+  bool remove_start_text = false;
   
   while (1) {
+    if(start_game && !remove_start_text) {
+      draw_text(text_x, text_y, "Press KEY1 to start", COL_BG);
+      remove_start_text = true;
+    }
+
     start();
 
     if (!start_game)
@@ -153,10 +160,12 @@ int main()
       if (p1_score == MAX_SCORE) {
           print("Player 1 wins!");
           draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
+          remove_start_text = false;
       }
       if (p2_score == MAX_SCORE) {
         print("Player 2 wins!");
         draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
+        remove_start_text = false;
       }
     }
     
