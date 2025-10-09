@@ -2,6 +2,8 @@
     "files.associations": {
         "stdint.h": "c",
         "sprites.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "simple-math.h": "c",
+        "limits": "c"
     },
 }

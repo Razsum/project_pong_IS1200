@@ -1,10 +1,8 @@
 #include "simple-math.h"
 
-// Simple pseudo-random number generator
 uint32_t rng_state = 12345;
 uint32_t frame_counter = 0;
 
-// Simple cosine approximation (good enough for small angles)
 float simple_cos(float x) {
     // Taylor series: cos(x) ≈ 1 - x²/2 + x⁴/24
     float x2 = x * x;
