@@ -87,6 +87,8 @@ int main()
     clear_screen8(COL_BG);
     draw_all(p1_score, p2_score);
 
+    button_pressed = false;
+
     int text_x = (WIDTH - 84) / 2;
     int text_y = HEIGHT / 2 - 3;
     
