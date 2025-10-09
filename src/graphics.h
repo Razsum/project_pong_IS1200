@@ -11,30 +11,28 @@
  */
 #define FB_BASE 0x08000000u
 
-
 /**
  * @brief Max width and height of our window in pixels
  *
  */
-#define WIDTH         320
-#define HEIGHT        240
+#define WIDTH 320
+#define HEIGHT 240
 
 /**
- * @brief Our defined colors 
- * 
- * We are using the RGB 3-3-2 8-bit pixel map, which means we have 256 
+ * @brief Our defined colors
+ *
+ * We are using the RGB 3-3-2 8-bit pixel map, which means we have 256
  * colors to define our graphics with
  * @author Razmus Nilsson
  */
 enum
 {
-  COL_BG = 0x00,  // Background (Black)
-  COL_NET = 0x80, // Center net (Dark red)
-  COL_FG = 0xFF,  // Paddles (White)
+  COL_BG = 0x00,   // Background (Black)
+  COL_NET = 0x80,  // Center net (Dark red)
+  COL_FG = 0xFF,   // Paddles (White)
   COL_BALL = 0xC0, // Ball (Red)
   COL_GOLD = 0xFC  // Start and victory text (Yellow)
 };
-
 
 /**
  * @brief Bitmaps used to define our numbers and characters
@@ -73,18 +71,18 @@ extern inline void pset8(int x, int y, uint8_t c);
 /**
  * @brief Draw a filled rectangle
  *
- * Checks so the drawing doesn't exceed the screen boundaries 
+ * Checks so the drawing doesn't exceed the screen boundaries
  * Draws a filled rectangle of width (w) and height (h) at position (x, y)
- * using the specified color. 
+ * using the specified color.
  *
  * @param x Top-left x coordinate
  * @param y Top-left y coordinate
  * @param w Width of rectangle
  * @param h Height of rectangle
- * @param c Color value 
+ * @param c Color value
  * @author Razmus Nilsson
  */
-extern void rect_fill8(int x,int y,int w,int h,uint8_t c);
+extern void rect_fill8(int x, int y, int w, int h, uint8_t c);
 
 /**
  * @brief Draw a single digit
@@ -132,7 +130,7 @@ extern void draw_char(int x, int y, char c, uint8_t color);
  * @param x Top-left x coordinate
  * @param y Top-left y coordinate
  * @param text Null-terminated string to draw
- * @param color Color value 
+ * @param color Color value
  * @author Razmus Nilsson
  */
 extern void draw_text(int x, int y, const char *text, uint8_t color);

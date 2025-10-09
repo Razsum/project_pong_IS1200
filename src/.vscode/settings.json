@@ -4,6 +4,8 @@
         "sprites.h": "c",
         "stdbool.h": "c",
         "simple-math.h": "c",
-        "limits": "c"
+        "limits": "c",
+        "dtekv-mpu6050-lib.h": "c",
+        "objects.h": "c"
     },
 }

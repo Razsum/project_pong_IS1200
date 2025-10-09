@@ -46,100 +46,134 @@ volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
 
 inline void pset8(int x, int y, uint8_t c)
 {
-  if ((unsigned)x < WIDTH && (unsigned)y < HEIGHT)
-    fb[y * WIDTH + x] = c;
+    if ((unsigned)x < WIDTH && (unsigned)y < HEIGHT)
+        fb[y * WIDTH + x] = c;
 }
 
-void rect_fill8(int x,int y,int w,int h,uint8_t c){
-  if (w<=0||h<=0) return;
-  if (x<0) { w+=x; x=0; } if (y<0) { h+=y; y=0; }
-  if (x+w>WIDTH)  w=WIDTH-x;
-  if (y+h>HEIGHT) h=HEIGHT-y;
-  
-  for (int j = 0; j < h; ++j) {
-    volatile uint8_t* row = fb + (y+j)*WIDTH + x;
-    for(int i=0;i<w;++i) row[i]=c;
-  }
+void rect_fill8(int x, int y, int w, int h, uint8_t c)
+{
+    if (w <= 0 || h <= 0)
+        return;
+    if (x < 0)
+    {
+        w += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        h += y;
+        y = 0;
+    }
+    if (x + w > WIDTH)
+        w = WIDTH - x;
+    if (y + h > HEIGHT)
+        h = HEIGHT - y;
+
+    for (int j = 0; j < h; ++j)
+    {
+        volatile uint8_t *row = fb + (y + j) * WIDTH + x;
+        for (int i = 0; i < w; ++i)
+            row[i] = c;
+    }
 }
 
-void draw_digit(int x, int y, int digit, uint8_t color) {
-    if (digit < 0 || digit > 9) return;
-    
-    for (int row = 0; row < 7; row++) {
+void draw_digit(int x, int y, int digit, uint8_t color)
+{
+    if (digit < 0 || digit > 9)
+        return;
+
+    for (int row = 0; row < 7; row++)
+    {
         uint8_t line = digits[digit][row];
-        for (int col = 0; col < 5; col++) {
-            if (line & (1 << (4 - col))) {
+        for (int col = 0; col < 5; col++)
+        {
+            if (line & (1 << (4 - col)))
+            {
                 pset8(x + col, y + row, color);
             }
         }
     }
 }
 
-void draw_score(int x, int y, int score, uint8_t color) {
+void draw_score(int x, int y, int score, uint8_t color)
+{
     int tens = (score / 10) % 10;
     int ones = score % 10;
-    
+
     draw_digit(x, y, tens, color);
     draw_digit(x + 8, y, ones, color);
 }
 
-void draw_char(int x, int y, char c, uint8_t color) {
-    if (c >= 'A' && c <= 'Z') {
+void draw_char(int x, int y, char c, uint8_t color)
+{
+    if (c >= 'A' && c <= 'Z')
+    {
         int idx = c - 'A';
-        for (int row = 0; row < 7; row++) {
+        for (int row = 0; row < 7; row++)
+        {
             uint8_t line = letters[idx][row];
-            for (int col = 0; col < 5; col++) {
-                if (line & (1 << (4 - col))) {
+            for (int col = 0; col < 5; col++)
+            {
+                if (line & (1 << (4 - col)))
+                {
                     pset8(x + col, y + row, color);
                 }
             }
         }
-    } else if (c >= 'a' && c <= 'z') {
+    }
+    else if (c >= 'a' && c <= 'z')
+    {
         // Convert lowercase to uppercase
         draw_char(x, y, c - 32, color);
-    } else if (c >= '0' && c <= '9') {
+    }
+    else if (c >= '0' && c <= '9')
+    {
         draw_digit(x, y, c - '0', color);
     }
 }
 
-void draw_text(int x, int y, const char *text, uint8_t color) {
+void draw_text(int x, int y, const char *text, uint8_t color)
+{
     int cursor_x = x;
-    while (*text) {
+    while (*text)
+    {
         draw_char(cursor_x, y, *text, color);
-        cursor_x += 6;  // 5 pixels wide + 1 pixel spacing
+        cursor_x += 6; // 5 pixels wide + 1 pixel spacing
         text++;
     }
 }
 
-void draw_all(int p1_score, int p2_score) {
-  // Erase old paddle areas
-  rect_fill8(prev_p1x, prev_p1y, pad_w, pad_h, COL_BG);
-  rect_fill8(prev_p2x, prev_p2y, pad_w, pad_h, COL_BG);
+void draw_all(int p1_score, int p2_score)
+{
+    // Erase old paddle areas
+    rect_fill8(prev_p1x, prev_p1y, pad_w, pad_h, COL_BG);
+    rect_fill8(prev_p2x, prev_p2y, pad_w, pad_h, COL_BG);
 
-  // Erase old ball area
-  rect_fill8(prev_bx, prev_by, ball_sz, ball_sz, COL_BG);
+    // Erase old ball area
+    rect_fill8(prev_bx, prev_by, ball_sz, ball_sz, COL_BG);
 
-  // Erases old score
-  rect_fill8(WIDTH/2 - 40, 10, 16, 7, COL_BG);
-  rect_fill8(WIDTH/2 + 20, 10, 16, 7, COL_BG);
+    // Erases old score
+    rect_fill8(WIDTH / 2 - 40, 10, 16, 7, COL_BG);
+    rect_fill8(WIDTH / 2 + 20, 10, 16, 7, COL_BG);
 
-  // Erases and redraws the net
-  for(int y=0;y<HEIGHT;y+=8) rect_fill8(WIDTH/2-1, y, 2, 4, COL_NET);
+    // Erases and redraws the net
+    for (int y = 0; y < HEIGHT; y += 8)
+        rect_fill8(WIDTH / 2 - 1, y, 2, 4, COL_NET);
 
-  // Redraws the paddles at new positions
-  rect_fill8(p1x, p1y, pad_w, pad_h, COL_FG);
-  rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
+    // Redraws the paddles at new positions
+    rect_fill8(p1x, p1y, pad_w, pad_h, COL_FG);
+    rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
 
-  // Redraws the ball at new position
-  rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
+    // Redraws the ball at new position
+    rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
 
-  // Redraws score
-  draw_score(WIDTH/2 - 40, 10, p1_score, COL_FG);
-  draw_score(WIDTH/2 + 20, 10, p2_score, COL_FG);
+    // Redraws
+    draw_score(WIDTH / 2 - 40, 10, p1_score, COL_FG);
+    draw_score(WIDTH / 2 + 20, 10, p2_score, COL_FG);
 }
 
 void clear_screen8(uint8_t c)
 {
-  for (int i = 0; i < WIDTH * HEIGHT; ++i)
-    fb[i] = c;
+    for (int i = 0; i < WIDTH * HEIGHT; ++i)
+        fb[i] = c;
 }

@@ -35,7 +35,7 @@ extern float ball_dx, ball_dy;
 extern void initialize_ball(int vel);
 
 /**
- * @brief Resets the ball to the middle of the screen, default direction of dx = 2
+ * @brief Resets the ball to the middle of the screen, with horizontal speed of dx = 2
  *
  * @author Razmus Nilsson
  *
@@ -46,7 +46,7 @@ extern void reset_ball_position();
  * @brief Handles all logic for ball movement, collisions, and scoring.
  *
  * Detects collisions with paddles and screen edges, updates the ball’s
- * position and velocity, and increments player scores when the ball 
+ * position and velocity, and increments player scores when the ball
  * touches the adjacent player's goal
  *
  * @param p1_score Pointer to player 1's score; incremented when player 1 scores.

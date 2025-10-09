@@ -165,7 +165,7 @@ void handle_interrupt(unsigned cause)
  * @brief Main game loop
  *
  * Initializes sensors, the timer, and the display, then enters
- * the main game loop which handles startmenu, gameplay, 
+ * the main game loop which handles startmenu, gameplay,
  * and game states
  *
  * The loop continuously:

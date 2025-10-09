@@ -148,7 +148,7 @@ void update_ball_physics(int *p1_score, int *p2_score)
 
 void update_player_position()
 {
-  // Updates the paddle's width and height 
+  // Updates the paddle's width and height
   // Stays consistent with current position
   prev_p1x = p1x;
   prev_p1y = p1y;
