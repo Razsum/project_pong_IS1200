@@ -73,7 +73,19 @@ int main()
     y1 = y1 / SENSITIVITY;
     y2 = y2 / SENSITIVITY;
     
-    handle_deadzone(y1, y2, -20, 20);
+    // Player 1 controls
+    if (y1 < -20) {          // Tilted one way
+        d1y = -PADDLE_VEL;            // Move up
+    } else if (y1 > 20) {    // Tilted other way  
+        d1y = PADDLE_VEL;             // Move down
+    }
+    
+    // Player 2 controls
+    if (y2 < -20) {          // Tilted one way
+        d2y = -PADDLE_VEL;            // Move up
+    } else if (y2 > 20) {    // Tilted other way  
+        d2y = PADDLE_VEL;             // Move down
+    }
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
