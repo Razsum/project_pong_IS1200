@@ -25,6 +25,6 @@ extern void initialize_ball();
 extern void update_ball_physics(int *p1_score, int *p2_score);
 
 // Paddle functions
-extern void update_player_position(int d1y, int d2y)
+extern void update_player_position();
 
 #endif

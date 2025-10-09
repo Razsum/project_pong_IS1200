@@ -108,7 +108,7 @@ void update_ball_physics(int *p1_score, int *p2_score) {
     }
 }
 
-void update_player_position(int d1y, int d2y) {
+void update_player_position() {
   prev_p1x = p1x;
   prev_p1y = p1y;
   prev_p2x = p2x;

@@ -176,7 +176,7 @@ int main()
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
-    update_player_position(d1y, d2y);
+    update_player_position();
     draw_all(p1_score, p2_score);
 
     wait(5);
