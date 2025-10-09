@@ -72,8 +72,10 @@ int main()
     } else if (y2 > 20) {    // Tilted other way  
         d2y = PADDLE_VEL;             // Move down
     } else {
-      d1y = 0;
+      d2y = 0;
     }
+
+    prints(y2);
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
