@@ -67,10 +67,10 @@ void handle_interrupt(unsigned cause)
 	TMR_STATUS = STAT_TO;
 
   if (get_btn() && !start_game) {
-    bool start_game = true;
+    start_game = true;
   } else if (get_btn() && start_game) {
     p1_score = 0, p2_score = 0;
-    bool start_game = false;
+    start_game = false;
   }
 
   if (p1_score < MAX_SCORE && p2_score < MAX_SCORE && start_game) {
