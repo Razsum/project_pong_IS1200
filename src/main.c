@@ -105,8 +105,6 @@ static void start() {
     
     y1 = y1 / SENSITIVITY;
     y2 = y2 / SENSITIVITY;
-
-    prints(y2);
     
     // Player 1 controls
     if (y1 < -10) {          // Tilted one way
