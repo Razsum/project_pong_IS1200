@@ -87,7 +87,7 @@ void handle_interrupt(unsigned cause)
 
 static int start() {
   clear_screen8(COL_BG);
-
+  
   short x1 = 0;
   short y1 = 0;
   short x2 = 0;
@@ -132,6 +132,8 @@ int main()
   initializeSensor(0);
   initializeSensor(1);
   initialize_tmr();
+
+  clear_screen8(COL_BG);
 
   int text_x = (WIDTH - 84) / 2;
   int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
