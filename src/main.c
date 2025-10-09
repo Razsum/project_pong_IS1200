@@ -152,7 +152,9 @@ int main()
       remove_start_text = true;
     }
 
-    start();
+    if(start_game && remove_start_text) {
+      start();
+    }
 
     if (!start_game)
     {
