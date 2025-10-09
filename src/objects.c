@@ -96,7 +96,7 @@ void update_ball_physics(int *p1_score, int *p2_score) {
       ball_dx = ball_vel;
       ball_dy = 0.0f;
       frame_counter++;
-      initialize_ball();
+      initialize_ball(ball_vel);
     }
 
     if (bx >= WIDTH) {
@@ -106,7 +106,7 @@ void update_ball_physics(int *p1_score, int *p2_score) {
       ball_dx = -ball_vel;
       ball_dy = 0.0f;
       frame_counter++;
-      initialize_ball();
+      initialize_ball(ball_vel);
     }
 }
 
