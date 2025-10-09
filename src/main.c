@@ -9,10 +9,6 @@
 #include "graphics.h"
 
 #define SENSITIVITY 180
-#define M_PI 3.14159265358979323846
-
-#define GPIO_IN_ADDR  0x040000E0u
-#define GPIO_IN       (*(volatile uint32_t*)GPIO_IN_ADDR)
 
 static void wait(unsigned short ms)
 {
@@ -59,16 +55,16 @@ int main()
     y2 = y2 / SENSITIVITY;
     
     // Player 1 controls
-    if (y1 < -10) {          // Tilted one way
+    if (y1 < -20) {          // Tilted one way
         d1y = -1;            // Move up
-    } else if (y1 > 10) {    // Tilted other way  
+    } else if (y1 > 20) {    // Tilted other way  
         d1y = 1;             // Move down
     }
     
     // Player 2 controls
-    if (y2 < -10) {          // Tilted one way
+    if (y2 < -20) {          // Tilted one way
         d2y = -1;            // Move up
-    } else if (y2 > 10) {    // Tilted other way  
+    } else if (y2 > 20) {    // Tilted other way  
         d2y = 1;             // Move down
     }
     
