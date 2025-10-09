@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <objects.h>
 
 #define SENSITIVITY 180
 #define M_PI 3.14159265358979323846
@@ -52,20 +53,6 @@ static uint32_t simple_rand(void) {
     rng_state = rng_state * 1103515245 + 12345;
     return (rng_state / 65536) % 32768;
 }
-
-// objects
-const int pad_w=6, pad_h=50;
-int p1x=10,         p1y=HEIGHT/2 - pad_h/2;
-int p2x=WIDTH-16,   p2y=HEIGHT/2 - pad_h/2;
-int prev_p1x = 10, prev_p1y = HEIGHT/2 - pad_h/2;
-int prev_p2x = WIDTH-16, prev_p2y = HEIGHT/2 - pad_h/2;
-
-const int ball_vel = 2;
-const int ball_sz=5; 
-float bx = WIDTH/2 - ball_sz/2.0f, by = HEIGHT/2 - ball_sz/2.0f;
-float prev_bx = WIDTH/2 - ball_sz/2.0f, prev_by = HEIGHT/2 - ball_sz/2.0f;
-float ball_dx = ball_vel;
-float ball_dy = 0;
 
 /* 8-bit framebuffer pointer (1 byte per pixel) */
 static volatile uint8_t *const fb = (volatile uint8_t *)FB_BASE;
@@ -293,13 +280,6 @@ int main()
 
   clear_screen8(COL_BG);
 
-  // draw net once
-  for(int y=0;y<HEIGHT;y+=8) rect_fill8(WIDTH/2-1, y, 2, 4, COL_NET);
-
-  rect_fill8(p1x, p1y, pad_w, pad_h, COL_FG);
-  rect_fill8(p2x, p2y, pad_w, pad_h, COL_FG);
-  rect_fill8(bx, by, ball_sz, ball_sz, COL_BALL);
-
   short x1 = 0;
   short y1 = 0;
   short x2 = 0;
@@ -315,8 +295,6 @@ int main()
     
     y1 = y1 / SENSITIVITY;
     y2 = y2 / SENSITIVITY;
-    int d1y = 0;
-    int d2y = 0;
     
     // Player 1 controls
     if (y1 < -10) {          // Tilted one way
@@ -331,12 +309,6 @@ int main()
     } else if (y2 > 10) {    // Tilted other way  
         d2y = 1;             // Move down
     }
-    
-    print(" Y1=");
-    prints(y1);
-    print(" Y2=");
-    prints(y2);
-    print("\n");
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
