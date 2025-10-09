@@ -8,12 +8,12 @@ extern uint32_t rng_state;
 extern uint32_t frame_counter;
 
 // Simple cosine approximation (good enough for small angles)
-extern float simple_cos(float x) {}
+extern float simple_cos(float x);
 
-extern float simple_sin(float x) {}
+extern float simple_sin(float x);
 
-extern void simple_srand(uint32_t seed) {}
+extern void simple_srand(uint32_t seed);
 
-extern uint32_t simple_rand(void) {}
+extern uint32_t simple_rand(void);
 
 #endif
