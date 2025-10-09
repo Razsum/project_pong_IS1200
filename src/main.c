@@ -85,7 +85,7 @@ void handle_interrupt(unsigned cause)
   }
 }
 
-static int start() {
+static void start() {
   clear_screen8(COL_BG);
   
   short x1 = 0;
@@ -103,6 +103,8 @@ static int start() {
     
     y1 = y1 / SENSITIVITY;
     y2 = y2 / SENSITIVITY;
+
+    prints(y2);
     
     // Player 1 controls
     if (y1 < -10) {          // Tilted one way
@@ -123,7 +125,7 @@ static int start() {
     }
   }
 
-  return 1;
+  start_game = false;
 }
 
 
@@ -143,11 +145,9 @@ int main()
   draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
   
   while (1) {
-    if (start_game) {
-      status = start();
-    }
+    start();
 
-    if (status)
+    if (!start_game)
     {
 
       if (p1_score == MAX_SCORE) {
