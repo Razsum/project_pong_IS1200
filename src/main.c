@@ -30,22 +30,6 @@ static void prints(short s)
     print_dec(s);
 }
 
-static void handle_deadzone(short y1, short y2, int lower_bound, int upper_bound) {
-  // Player 1 controls
-  if (y1 < lower_bound) {          // Tilted one way
-      d1y = -PADDLE_VEL;            // Move up
-  } else if (y1 > upper_bound) {    // Tilted other way  
-      d1y = PADDLE_VEL;             // Move down
-  }
-  
-  // Player 2 controls
-  if (y2 < -lower_bound) {          // Tilted one way
-      d2y = -PADDLE_VEL;            // Move up
-  } else if (y2 > upper_bound) {    // Tilted other way  
-      d2y = PADDLE_VEL;             // Move down
-  }
-}
-
 void handle_interrupt(void) {}
 
 int main()
@@ -78,6 +62,8 @@ int main()
         d1y = -PADDLE_VEL;            // Move up
     } else if (y1 > 20) {    // Tilted other way  
         d1y = PADDLE_VEL;             // Move down
+    } else {
+        d1y = 0;
     }
     
     // Player 2 controls
@@ -85,6 +71,8 @@ int main()
         d2y = -PADDLE_VEL;            // Move up
     } else if (y2 > 20) {    // Tilted other way  
         d2y = PADDLE_VEL;             // Move down
+    } else {
+      d1y = 0;
     }
     
     // ---- UPDATE ----
