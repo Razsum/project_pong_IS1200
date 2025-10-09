@@ -62,6 +62,8 @@ int get_btn(void) {
     return (int)(*BTN_ADDR & 0x1u);   // LSB = button state
 }
 
+int clear_screen_once = false
+
 void handle_interrupt(unsigned cause) 
 {
 	TMR_STATUS = STAT_TO;
@@ -154,6 +156,7 @@ int main()
 
     if(start_game && remove_start_text) {
       start();
+      clear_screen8(COL_BG);
     }
 
     if (!start_game)
