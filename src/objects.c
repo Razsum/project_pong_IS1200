@@ -7,16 +7,18 @@ int prev_p1x = 10, prev_p1y = HEIGHT / 2 - pad_h / 2;
 int prev_p2x = WIDTH - 16, prev_p2y = HEIGHT / 2 - pad_h / 2;
 int d1y = 0, d2y = 0;
 
-const int ball_vel = 2;
+int ball_vel = 2;
 const int ball_sz = 5;
 float bx = WIDTH / 2 - ball_sz / 2.0f, by = HEIGHT / 2 - ball_sz / 2.0f;
 float prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0f;
 float ball_dx = ball_vel;
 float ball_dy = 0;
 
-void initialize_ball() {
+void initialize_ball(int vel) {
   // Use frame counter as seed for randomness
   simple_srand(frame_counter * 7919);
+
+  ball_vel = vel;
   
   int r_x = simple_rand() % 2;
   int r_y = simple_rand() % 2;

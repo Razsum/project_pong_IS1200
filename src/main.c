@@ -9,6 +9,9 @@
 #include "graphics.h"
 
 #define SENSITIVITY 180
+#define MAX_SCORE 10
+#define PADDLE_VEL 1
+#define BALL_VEL 2
 
 static void wait(unsigned short ms)
 {
@@ -27,6 +30,22 @@ static void prints(short s)
     print_dec(s);
 }
 
+static void handle_deadzone(short y1, short y2, int lower_bound, int upper_bound) {
+  // Player 1 controls
+  if (y1 < lower_bound) {          // Tilted one way
+      d1y = -PADDLE_VEL;            // Move up
+  } else if (y1 > upper_bound) {    // Tilted other way  
+      d1y = PADDLE_VEL;             // Move down
+  }
+  
+  // Player 2 controls
+  if (y2 < -lower_bound) {          // Tilted one way
+      d2y = -PADDLE_VEL;            // Move up
+  } else if (y2 > upper_bound) {    // Tilted other way  
+      d2y = PADDLE_VEL;             // Move down
+  }
+}
+
 void handle_interrupt(void) {}
 
 int main()
@@ -43,9 +62,9 @@ int main()
   short x2 = 0;
   short y2 = 0;
 
-  initialize_ball();
+  initialize_ball(BALL_VEL);
 
-  while (p1_score < 10 && p2_score < 10)
+  while (p1_score < MAX_SCORE && p2_score < MAX_SCORE)
   {
     getAccelerometer(0, &x1, &y1);
     getAccelerometer(1, &x2, &y2);
@@ -54,19 +73,7 @@ int main()
     y1 = y1 / SENSITIVITY;
     y2 = y2 / SENSITIVITY;
     
-    // Player 1 controls
-    if (y1 < -20) {          // Tilted one way
-        d1y = -1;            // Move up
-    } else if (y1 > 20) {    // Tilted other way  
-        d1y = 1;             // Move down
-    }
-    
-    // Player 2 controls
-    if (y2 < -20) {          // Tilted one way
-        d2y = -1;            // Move up
-    } else if (y2 > 20) {    // Tilted other way  
-        d2y = 1;             // Move down
-    }
+    handle_deadzone(y1, y2, -20, 20);
     
     // ---- UPDATE ----
     update_ball_physics(&p1_score, &p2_score);
@@ -76,10 +83,10 @@ int main()
     wait(5);
   }
 
-  if (p1_score == 10) {
+  if (p1_score == MAX_SCORE) {
       print("Player 1 wins!");
   }
-  if (p2_score == 10) {
+  if (p2_score == MAX_SCORE) {
     print("Player 2 wins!");
   }
 }
