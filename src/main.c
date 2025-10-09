@@ -38,7 +38,6 @@ typedef enum {
 int p1_score = 0, p2_score = 0;
 volatile GameState game_state = STATE_MENU;
 volatile bool button_pressed = false;
-bool first_press_handled = false;
 
 void initialize_tmr(void)
 {
@@ -59,13 +58,8 @@ void handle_interrupt(unsigned cause)
 
     // Detect button press
     if (get_btn()) {
-        if (!first_press_handled) {
-            first_press_handled = true;
-        } else {
-            button_pressed = true;
-        }
+        button_pressed = true;
     }
-
 
     // Update game physics only when playing
     if (game_state == STATE_PLAYING) {
