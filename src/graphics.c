@@ -88,7 +88,7 @@ void draw_score(int x, int y, int score, uint8_t color) {
 }
 
 // Draw a single character (letter, digit, or space)
-static void draw_char(int x, int y, char c, uint8_t color) {
+void draw_char(int x, int y, char c, uint8_t color) {
     if (c >= 'A' && c <= 'Z') {
         // Uppercase letter
         int idx = c - 'A';
@@ -111,7 +111,7 @@ static void draw_char(int x, int y, char c, uint8_t color) {
 }
 
 // Draw a string of text
-static void draw_text(int x, int y, const char *text, uint8_t color) {
+void draw_text(int x, int y, const char *text, uint8_t color) {
     int cursor_x = x;
     while (*text) {
         draw_char(cursor_x, y, *text, color);
