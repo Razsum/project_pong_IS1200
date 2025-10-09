@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define M_PI 3.14159265358979323846
+
 // Simple pseudo-random number generator
 extern uint32_t rng_state;
 extern uint32_t frame_counter;

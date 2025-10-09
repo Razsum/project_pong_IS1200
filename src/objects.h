@@ -1,6 +1,8 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
+#include "simple-math.h"
+
 #define WIDTH 320
 #define HEIGHT 240
 
@@ -17,5 +19,12 @@ extern const int ball_vel, ball_sz;
 extern float bx, by;
 extern float prev_bx, prev_by;
 extern float ball_dx, ball_dy;
+
+// Ball functions
+extern void initialize_ball();
+extern void update_ball_physics(int *p1_score, int *p2_score);
+
+// Paddle functions
+extern void update_player_position(int d1y, int d2y)
 
 #endif
