@@ -14,7 +14,7 @@ float prev_bx = WIDTH / 2 - ball_sz / 2.0f, prev_by = HEIGHT / 2 - ball_sz / 2.0
 float ball_dx = ball_vel;
 float ball_dy = 0;
 
-static void initialize_ball() {
+void initialize_ball() {
   // Use frame counter as seed for randomness
   simple_srand(frame_counter * 7919);
   
@@ -30,7 +30,7 @@ static void initialize_ball() {
   }
 }
 
-static void update_ball_physics(int *p1_score, int *p2_score) {
+void update_ball_physics(int *p1_score, int *p2_score) {
     prev_bx = bx;
     prev_by = by;
     bx += ball_dx;
@@ -108,7 +108,7 @@ static void update_ball_physics(int *p1_score, int *p2_score) {
     }
 }
 
-static void update_player_position(int d1y, int d2y) {
+void update_player_position(int d1y, int d2y) {
   prev_p1x = p1x;
   prev_p1y = p1y;
   prev_p2x = p2x;
