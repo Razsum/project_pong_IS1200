@@ -144,17 +144,17 @@ int main()
   
   while (1) {
     if (!start_game && !remove_start_text) {
-      draw_text(text_x, text_y + 20, "Press KEY1 to start", COL_GOLD);
+      draw_text(text_x - 20, text_y + 20, "Press KEY1 to start", COL_GOLD);
     }
 
     if(start_game && !remove_start_text) {
       draw_text(text_x, text_y, "Press KEY1 to start", COL_BG);
       remove_start_text = true;
+      start();
+      clear_screen8(COL_BG);
     }
 
     if(start_game && remove_start_text) {
-      start();
-      clear_screen8(COL_BG);
     }
 
     if (!start_game)
