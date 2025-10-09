@@ -139,11 +139,14 @@ int main()
 
   int status = 0;
   draw_all(p1_score, p2_score);
-  draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
 
   bool remove_start_text = false;
   
   while (1) {
+    if (!start_game && !remove_start_text) {
+      draw_text(text_x, text_y, "Press KEY1 to start", COL_GOLD);
+    }
+
     if(start_game && !remove_start_text) {
       draw_text(text_x, text_y, "Press KEY1 to start", COL_BG);
       remove_start_text = true;
