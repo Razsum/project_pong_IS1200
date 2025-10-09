@@ -64,9 +64,11 @@ static void prints(short s)
 void handle_interrupt(unsigned cause) 
 {
 	TMR_STATUS = STAT_TO;
-	update_ball_physics(&p1_score, &p2_score);
-  update_player_position();
-  draw_all(p1_score, p2_score);
+  if (p1_score < MAX_SCORE && p2_score < MAX_SCORE) {
+    update_ball_physics(&p1_score, &p2_score);
+    update_player_position();
+    draw_all(p1_score, p2_score);
+  }
 }
 
 
@@ -113,10 +115,15 @@ int main()
     }
   }
 
+  int text_x = (WIDTH - 84) / 2;
+  int text_y = HEIGHT / 2 - 3;  // Center vertically (7px tall / 2)
+
   if (p1_score == MAX_SCORE) {
       print("Player 1 wins!");
+      draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
   }
   if (p2_score == MAX_SCORE) {
     print("Player 2 wins!");
+    draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
   }
 }
