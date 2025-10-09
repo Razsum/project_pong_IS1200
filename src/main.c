@@ -78,7 +78,6 @@ void handle_interrupt(unsigned cause)
     update_player_position();
     draw_all(p1_score, p2_score);
   } else {
-    start_game = false;
     reset_player_position();
     reset_ball_position();
     draw_all(p1_score, p2_score);
@@ -159,12 +158,10 @@ int main()
     {
 
       if (p1_score == MAX_SCORE) {
-          print("Player 1 wins!");
           draw_text(text_x, text_y, "Player 1 wins", COL_GOLD);
           remove_start_text = false;
       }
       if (p2_score == MAX_SCORE) {
-        print("Player 2 wins!");
         draw_text(text_x, text_y, "Player 2 wins", COL_GOLD);
         remove_start_text = false;
       }
